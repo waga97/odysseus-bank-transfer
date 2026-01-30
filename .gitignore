@@ -46,3 +46,6 @@ coverage/
 *.log
 tmp/
 temp/
+
+mockup-one/
+sample-ui/
