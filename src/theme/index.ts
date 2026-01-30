@@ -3,12 +3,7 @@
  * Centralized design tokens and theme configuration
  */
 
-import {
-  palette,
-  lightColors,
-  darkColors,
-  type ColorScheme,
-} from './colors';
+import { palette, colors, type Colors } from './colors';
 import {
   fontFamily,
   fontSize,
@@ -17,11 +12,7 @@ import {
   typography,
   type TypographyVariantKey,
 } from './typography';
-import {
-  spacing,
-  semanticSpacing,
-  type SpacingKey,
-} from './spacing';
+import { spacing, semanticSpacing, type SpacingKey } from './spacing';
 import {
   borderRadius,
   componentRadius,
@@ -47,8 +38,7 @@ import {
 export const theme = {
   colors: {
     palette,
-    light: lightColors,
-    dark: darkColors,
+    ...colors,
   },
   typography: {
     fontFamily,
@@ -88,9 +78,8 @@ export type Theme = typeof theme;
 export {
   // Colors
   palette,
-  lightColors,
-  darkColors,
-  type ColorScheme,
+  colors,
+  type Colors,
   // Typography
   fontFamily,
   fontSize,

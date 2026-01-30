@@ -12,7 +12,7 @@ export const palette = {
     contrast: '#ffffff',
   },
 
-  // Neutrals - Light mode
+  // Neutrals
   neutral: {
     50: '#f8fafc',
     100: '#f1f5f9',
@@ -54,7 +54,7 @@ export const palette = {
   transparent: 'transparent',
 } as const;
 
-export const lightColors = {
+export const colors = {
   // Backgrounds
   background: {
     primary: '#f5f7f8',
@@ -114,64 +114,4 @@ export const lightColors = {
   },
 } as const;
 
-export const darkColors = {
-  // Backgrounds
-  background: {
-    primary: '#101c22',
-    secondary: '#182830',
-    tertiary: '#1a2c36',
-  },
-
-  // Surfaces
-  surface: {
-    primary: '#1a2c36',
-    secondary: '#182830',
-    elevated: '#223a47',
-  },
-
-  // Text
-  text: {
-    primary: '#ffffff',
-    secondary: '#94a3b8',
-    tertiary: '#64748b',
-    inverse: '#0d171c',
-    disabled: '#475569',
-  },
-
-  // Borders
-  border: {
-    primary: '#334155',
-    secondary: '#1e293b',
-    focus: palette.primary.light,
-  },
-
-  // Interactive
-  interactive: {
-    primary: palette.primary.main,
-    primaryHover: palette.primary.light,
-    primaryPressed: palette.primary.dark,
-    secondary: '#1e293b',
-    secondaryHover: '#334155',
-    disabled: '#334155',
-  },
-
-  // Semantic
-  semantic: {
-    success: palette.success.main,
-    successBackground: '#064e3b',
-    warning: palette.warning.main,
-    warningBackground: '#78350f',
-    error: palette.error.main,
-    errorBackground: '#7f1d1d',
-    info: palette.info.main,
-    infoBackground: '#1e3a8a',
-  },
-
-  // Shadows
-  shadow: {
-    color: '#000000',
-    opacity: 0.3,
-  },
-} as const;
-
-export type ColorScheme = typeof lightColors;
+export type Colors = typeof colors;
