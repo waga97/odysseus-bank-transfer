@@ -12,3 +12,4 @@ export { Chip } from './Chip';
 export { Divider } from './Divider';
 export { IconButton } from './IconButton';
 export { Badge } from './Badge';
+export { Icon } from './Icon';

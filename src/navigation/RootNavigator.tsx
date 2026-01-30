@@ -8,8 +8,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './types';
 import { colors } from '@theme/colors';
 
-// Screens - will be implemented in Phase 3
-// For now, we'll use placeholder components
+// Screens
+import { HomeScreen } from '@features/home';
 import { PlaceholderScreen } from './PlaceholderScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -31,7 +31,7 @@ export function RootNavigator() {
       {/* Main */}
       <Stack.Screen
         name="Home"
-        component={PlaceholderScreen}
+        component={HomeScreen}
       />
 
       {/* Transfer Flow */}
