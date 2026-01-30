@@ -10,7 +10,7 @@ import type {
   Transaction,
   TransferLimits,
   Bank,
-} from '@types/models';
+} from '@types';
 
 interface AccountState {
   // State
@@ -72,12 +72,12 @@ export const useAccountStore = create<AccountState>((set, get) => ({
 
   // Account Actions
   setAccounts: (accounts) => {
-    const defaultAccount = accounts.find((a) => a.isDefault) ?? accounts[0] ?? null;
+    const defaultAccount =
+      accounts.find((a) => a.isDefault) ?? accounts[0] ?? null;
     set({ accounts, defaultAccount });
   },
 
-  setDefaultAccount: (account) =>
-    set({ defaultAccount: account }),
+  setDefaultAccount: (account) => set({ defaultAccount: account }),
 
   updateBalance: (accountId, newBalance) =>
     set((state) => ({
@@ -93,9 +93,16 @@ export const useAccountStore = create<AccountState>((set, get) => ({
   // Recipient Actions
   setRecipients: (recipients) => {
     const sortedByDate = [...recipients].sort((a, b) => {
-      if (!a.lastTransferDate) return 1;
-      if (!b.lastTransferDate) return -1;
-      return new Date(b.lastTransferDate).getTime() - new Date(a.lastTransferDate).getTime();
+      if (!a.lastTransferDate) {
+        return 1;
+      }
+      if (!b.lastTransferDate) {
+        return -1;
+      }
+      return (
+        new Date(b.lastTransferDate).getTime() -
+        new Date(a.lastTransferDate).getTime()
+      );
     });
 
     set({
@@ -136,8 +143,7 @@ export const useAccountStore = create<AccountState>((set, get) => ({
   },
 
   // Transaction Actions
-  setTransactions: (transactions) =>
-    set({ transactions }),
+  setTransactions: (transactions) => set({ transactions }),
 
   addTransaction: (transaction) =>
     set((state) => ({
@@ -152,12 +158,13 @@ export const useAccountStore = create<AccountState>((set, get) => ({
     })),
 
   // Limits Actions
-  setTransferLimits: (limits) =>
-    set({ transferLimits: limits }),
+  setTransferLimits: (limits) => set({ transferLimits: limits }),
 
   updateDailyUsed: (amount) =>
     set((state) => {
-      if (!state.transferLimits) return state;
+      if (!state.transferLimits) {
+        return state;
+      }
       const newUsed = state.transferLimits.daily.used + amount;
       return {
         transferLimits: {
@@ -172,28 +179,30 @@ export const useAccountStore = create<AccountState>((set, get) => ({
     }),
 
   // Bank Actions
-  setBanks: (banks) =>
-    set({ banks }),
+  setBanks: (banks) => set({ banks }),
 
   // Utility Actions
-  setLoading: (loading) =>
-    set({ isLoading: loading }),
+  setLoading: (loading) => set({ isLoading: loading }),
 
-  setError: (error) =>
-    set({ error }),
+  setError: (error) => set({ error }),
 
-  reset: () =>
-    set(initialState),
+  reset: () => set(initialState),
 }));
 
 /**
  * Selector hooks for optimized re-renders
  */
-export const useDefaultAccount = () => useAccountStore((state) => state.defaultAccount);
-export const useBalance = () => useAccountStore((state) => state.defaultAccount?.balance ?? 0);
+export const useDefaultAccount = () =>
+  useAccountStore((state) => state.defaultAccount);
+export const useBalance = () =>
+  useAccountStore((state) => state.defaultAccount?.balance ?? 0);
 export const useRecipients = () => useAccountStore((state) => state.recipients);
-export const useRecentRecipients = () => useAccountStore((state) => state.recentRecipients);
-export const useFavoriteRecipients = () => useAccountStore((state) => state.favoriteRecipients);
-export const useTransactions = () => useAccountStore((state) => state.transactions);
-export const useTransferLimits = () => useAccountStore((state) => state.transferLimits);
+export const useRecentRecipients = () =>
+  useAccountStore((state) => state.recentRecipients);
+export const useFavoriteRecipients = () =>
+  useAccountStore((state) => state.favoriteRecipients);
+export const useTransactions = () =>
+  useAccountStore((state) => state.transactions);
+export const useTransferLimits = () =>
+  useAccountStore((state) => state.transferLimits);
 export const useBanks = () => useAccountStore((state) => state.banks);

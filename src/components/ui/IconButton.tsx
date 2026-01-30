@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { colors } from '@theme/colors';
 import { borderRadius } from '@theme/borderRadius';
-import { spacing } from '@theme/spacing';
 
 type IconButtonVariant = 'default' | 'filled' | 'outlined';
 type IconButtonSize = 'small' | 'medium' | 'large';

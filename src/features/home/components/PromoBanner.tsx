@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Card } from '@components/ui';
+import { Text, Card, Icon } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
@@ -27,12 +27,12 @@ export function PromoBanner({ onPress }: PromoBannerProps) {
       <View style={styles.content}>
         {/* Icon Badge */}
         <View style={styles.iconBadge}>
-          <Text style={styles.iconText}>📈</Text>
+          <Icon name="trending-up" size={20} color={palette.primary.main} />
         </View>
 
         {/* Decorative Icon */}
         <View style={styles.decorativeIcon}>
-          <Text style={styles.decorativeText}>🏦</Text>
+          <Icon name="globe" size={64} color={palette.primary.main} />
         </View>
 
         {/* Text Content */}
@@ -98,18 +98,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing[4],
   },
-  iconText: {
-    fontSize: 20,
-  },
   decorativeIcon: {
     position: 'absolute',
     top: -spacing[4],
     right: -spacing[4],
     opacity: 0.15,
     transform: [{ rotate: '12deg' }],
-  },
-  decorativeText: {
-    fontSize: 64,
   },
   textContent: {
     marginBottom: spacing[4],

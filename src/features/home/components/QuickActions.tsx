@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text } from '@components/ui';
+import { Text, Icon } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
@@ -14,7 +14,7 @@ import { componentShadows } from '@theme/shadows';
 interface QuickAction {
   id: string;
   label: string;
-  icon: string;
+  iconName: string;
   isPrimary?: boolean;
   onPress: () => void;
 }
@@ -36,26 +36,26 @@ export function QuickActions({
     {
       id: 'scan',
       label: 'Scan',
-      icon: '⊞',
+      iconName: 'maximize',
       onPress: onScanPress ?? (() => {}),
     },
     {
       id: 'add',
       label: 'Add Money',
-      icon: '+',
+      iconName: 'plus',
       isPrimary: true,
       onPress: onAddMoneyPress ?? (() => {}),
     },
     {
       id: 'receive',
       label: 'Receive',
-      icon: '↙',
+      iconName: 'arrow-down-left',
       onPress: onReceivePress ?? (() => {}),
     },
     {
       id: 'transfer',
       label: 'Transfer',
-      icon: '↗',
+      iconName: 'send',
       onPress: onTransferPress ?? (() => {}),
     },
   ];
@@ -75,14 +75,15 @@ export function QuickActions({
               action.isPrimary && componentShadows.buttonPrimary,
             ]}
           >
-            <Text
-              style={[
-                styles.icon,
-                action.isPrimary && styles.iconPrimary,
-              ]}
-            >
-              {action.icon}
-            </Text>
+            <Icon
+              name={action.iconName}
+              size={24}
+              color={
+                action.isPrimary
+                  ? palette.primary.contrast
+                  : palette.primary.main
+              }
+            />
           </View>
           <Text variant="labelSmall" color="secondary">
             {action.label}
@@ -116,13 +117,6 @@ const styles = StyleSheet.create({
   iconContainerPrimary: {
     backgroundColor: palette.primary.main,
     borderColor: palette.primary.main,
-  },
-  icon: {
-    fontSize: 24,
-    color: palette.primary.main,
-  },
-  iconPrimary: {
-    color: palette.primary.contrast,
   },
 });
 

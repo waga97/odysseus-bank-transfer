@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: colors.border.transparent,
   },
   selected: {
     backgroundColor: palette.primary.main,

@@ -3,7 +3,8 @@
  * Using Manrope font family as per mockup design
  */
 
-import { Platform, TextStyle } from 'react-native';
+import type { TextStyle } from 'react-native';
+import { Platform } from 'react-native';
 
 // Font family configuration
 export const fontFamily = {

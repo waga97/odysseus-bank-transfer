@@ -5,12 +5,12 @@
 
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, Card } from '@components/ui';
+import { Text, Card, Icon } from '@components/ui';
 import { colors } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
 import { useTransactions } from '@stores/accountStore';
-import type { Transaction } from '@types/models';
+import type { Transaction } from '@types';
 
 interface RecentActivityProps {
   onSeeAllPress?: () => void;
@@ -20,25 +20,25 @@ interface RecentActivityProps {
 // Map transaction types to icons and colors
 const transactionTypeConfig: Record<
   string,
-  { icon: string; bgColor: string; iconColor: string }
+  { iconName: string; bgColor: string; iconColor: string }
 > = {
   transfer: {
-    icon: '↗',
+    iconName: 'send',
     bgColor: '#dbeafe',
     iconColor: '#2563eb',
   },
   payment: {
-    icon: '🛍',
+    iconName: 'shopping-bag',
     bgColor: '#fef3c7',
     iconColor: '#d97706',
   },
   topup: {
-    icon: '+',
+    iconName: 'plus',
     bgColor: '#d1fae5',
     iconColor: '#059669',
   },
   withdrawal: {
-    icon: '↓',
+    iconName: 'arrow-down',
     bgColor: '#fee2e2',
     iconColor: '#dc2626',
   },
@@ -124,9 +124,11 @@ export function RecentActivity({
                         { backgroundColor: config.bgColor },
                       ]}
                     >
-                      <Text style={[styles.icon, { color: config.iconColor }]}>
-                        {config.icon}
-                      </Text>
+                      <Icon
+                        name={config.iconName}
+                        size={20}
+                        color={config.iconColor}
+                      />
                     </View>
 
                     {/* Details */}
@@ -182,9 +184,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    fontSize: 20,
   },
   details: {
     flex: 1,

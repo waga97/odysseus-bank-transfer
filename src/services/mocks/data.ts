@@ -10,7 +10,7 @@ import type {
   Transaction,
   TransferLimits,
   Bank,
-} from '@types/models';
+} from '@types';
 
 /**
  * Current logged-in user
@@ -135,14 +135,29 @@ export const mockBanks: Bank[] = [
   { id: 'bank-002', name: 'CIMB Bank', shortName: 'CIMB', isPopular: true },
   { id: 'bank-003', name: 'Public Bank', shortName: 'PBB', isPopular: true },
   { id: 'bank-004', name: 'RHB Bank', shortName: 'RHB', isPopular: true },
-  { id: 'bank-005', name: 'Hong Leong Bank', shortName: 'HLB', isPopular: true },
+  {
+    id: 'bank-005',
+    name: 'Hong Leong Bank',
+    shortName: 'HLB',
+    isPopular: true,
+  },
   { id: 'bank-006', name: 'AmBank', shortName: 'AMB', isPopular: false },
   { id: 'bank-007', name: 'Bank Islam', shortName: 'BIMB', isPopular: false },
   { id: 'bank-008', name: 'Bank Rakyat', shortName: 'BKRM', isPopular: false },
   { id: 'bank-009', name: 'OCBC Bank', shortName: 'OCBC', isPopular: false },
   { id: 'bank-010', name: 'UOB Malaysia', shortName: 'UOB', isPopular: false },
-  { id: 'bank-011', name: 'Standard Chartered', shortName: 'SCB', isPopular: false },
-  { id: 'bank-012', name: 'HSBC Malaysia', shortName: 'HSBC', isPopular: false },
+  {
+    id: 'bank-011',
+    name: 'Standard Chartered',
+    shortName: 'SCB',
+    isPopular: false,
+  },
+  {
+    id: 'bank-012',
+    name: 'HSBC Malaysia',
+    shortName: 'HSBC',
+    isPopular: false,
+  },
   { id: 'bank-013', name: 'Affin Bank', shortName: 'AFIN', isPopular: false },
   { id: 'bank-014', name: 'Alliance Bank', shortName: 'ABM', isPopular: false },
   { id: 'bank-015', name: 'Bank Muamalat', shortName: 'BMM', isPopular: false },

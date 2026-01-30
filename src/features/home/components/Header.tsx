@@ -6,7 +6,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, Avatar, Badge } from '@components/ui';
+import { Text, Avatar, Badge, Icon } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { useUser } from '@stores/authStore';
@@ -25,9 +25,7 @@ export function Header({ onNotificationPress, onProfilePress }: HeaderProps) {
       {/* Logo */}
       <View style={styles.logoContainer}>
         <View style={styles.logoIcon}>
-          <Text variant="headlineMedium" color={palette.primary.main}>
-            ⎈
-          </Text>
+          <Icon name="globe" size={28} color={palette.primary.main} />
         </View>
         <Text variant="headlineSmall" color="primary">
           Odysseus
@@ -41,7 +39,7 @@ export function Header({ onNotificationPress, onProfilePress }: HeaderProps) {
           style={styles.notificationButton}
           onPress={onNotificationPress}
         >
-          <Text style={styles.notificationIcon}>🔔</Text>
+          <Icon name="bell" size={24} color={colors.text.primary} />
           <View style={styles.notificationBadge}>
             <Badge dot variant="error" />
           </View>
@@ -88,9 +86,6 @@ const styles = StyleSheet.create({
   notificationButton: {
     position: 'relative',
     padding: spacing[1],
-  },
-  notificationIcon: {
-    fontSize: 24,
   },
   notificationBadge: {
     position: 'absolute',

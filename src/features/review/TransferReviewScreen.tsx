@@ -1,0 +1,361 @@
+/**
+ * Odysseus Bank - Transfer Review Screen
+ * Review and confirm transfer details before biometric auth
+ */
+
+import React, { useCallback, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  StatusBar,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Text, Avatar, Icon, Button, Divider } from '@components/ui';
+import { colors } from '@theme/colors';
+import { spacing } from '@theme/spacing';
+import { borderRadius } from '@theme/borderRadius';
+import { shadows } from '@theme/shadows';
+import type { RootStackScreenProps } from '@navigation/types';
+import { useAccountStore } from '@stores/accountStore';
+
+type Props = RootStackScreenProps<'TransferReview'>;
+
+export function TransferReviewScreen({ navigation, route }: Props) {
+  const { recipient, amount, note } = route.params;
+  const insets = useSafeAreaInsets();
+
+  const { defaultAccount, transferLimits } = useAccountStore();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleConfirm = useCallback(async () => {
+    setIsLoading(true);
+
+    // Simulate processing delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Navigate to success (in real app, this would go through biometric + API)
+    navigation.replace('TransferSuccess', {
+      transaction: {
+        id: `txn-${Date.now()}`,
+        amount,
+        recipientName: recipient.name,
+        recipientAccount: recipient.accountNumber,
+        bankName: recipient.bankName,
+        date: new Date().toISOString(),
+        reference: `ODS-${Math.floor(10000 + Math.random() * 90000)}`,
+        note,
+      },
+    });
+  }, [amount, recipient, note, navigation]);
+
+  // Format amount
+  const formattedAmount = `RM ${amount.toFixed(2)}`;
+
+  // Calculate new balance
+  const currentBalance = defaultAccount?.balance ?? 0;
+  const newBalance = currentBalance - amount;
+
+  // Check if approaching limit
+  const dailyRemaining = transferLimits?.daily.remaining ?? 10000;
+  const isApproachingLimit = amount >= dailyRemaining * 0.8;
+
+  return (
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.backButton,
+            pressed && styles.backButtonPressed,
+          ]}
+          onPress={handleBack}
+        >
+          <Icon name="arrow-left" size={24} color={colors.text.primary} />
+        </Pressable>
+        <Text variant="titleMedium" color="primary" style={styles.headerTitle}>
+          Review Transfer
+        </Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Amount Card */}
+        <View style={styles.amountCard}>
+          <Text variant="labelMedium" color="tertiary">
+            You&apos;re sending
+          </Text>
+          <Text style={styles.amountText}>{formattedAmount}</Text>
+          {note ? (
+            <View style={styles.noteContainer}>
+              <Icon name="file-text" size={14} color={colors.text.tertiary} />
+              <Text variant="bodySmall" color="tertiary">
+                {note}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
+        {/* Recipient Card */}
+        <View style={styles.detailsCard}>
+          <Text
+            variant="labelMedium"
+            color="tertiary"
+            style={styles.sectionLabel}
+          >
+            TO
+          </Text>
+          <View style={styles.recipientRow}>
+            <Avatar name={recipient.name} size="large" />
+            <View style={styles.recipientInfo}>
+              <Text variant="titleSmall" color="primary">
+                {recipient.name}
+              </Text>
+              <Text variant="caption" color="tertiary">
+                {recipient.bankName}
+              </Text>
+              <Text variant="caption" color="tertiary">
+                {recipient.accountNumber
+                  ? `Account: •••• ${recipient.accountNumber.slice(-4)}`
+                  : `Phone: ${recipient.phoneNumber}`}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* From Account */}
+        <View style={styles.detailsCard}>
+          <Text
+            variant="labelMedium"
+            color="tertiary"
+            style={styles.sectionLabel}
+          >
+            FROM
+          </Text>
+          <View style={styles.accountRow}>
+            <View style={styles.accountIcon}>
+              <Icon name="credit-card" size={20} color={colors.primary[600]} />
+            </View>
+            <View style={styles.accountInfo}>
+              <Text variant="titleSmall" color="primary">
+                Odysseus Bank
+              </Text>
+              <Text variant="caption" color="tertiary">
+                {defaultAccount?.accountType === 'savings'
+                  ? 'Savings'
+                  : 'Current'}{' '}
+                Account ••••{' '}
+                {defaultAccount?.accountNumber?.slice(-4) ?? '0000'}
+              </Text>
+            </View>
+          </View>
+
+          <Divider style={styles.divider} />
+
+          {/* Balance Info */}
+          <View style={styles.balanceRow}>
+            <Text variant="bodySmall" color="secondary">
+              Current balance
+            </Text>
+            <Text variant="bodySmall" color="primary">
+              RM {currentBalance.toFixed(2)}
+            </Text>
+          </View>
+          <View style={styles.balanceRow}>
+            <Text variant="bodySmall" color="secondary">
+              After transfer
+            </Text>
+            <Text
+              variant="bodySmall"
+              color={newBalance < 100 ? colors.status.warning : 'primary'}
+            >
+              RM {newBalance.toFixed(2)}
+            </Text>
+          </View>
+        </View>
+
+        {/* Warning if approaching limit */}
+        {isApproachingLimit && (
+          <View style={styles.warningCard}>
+            <Icon
+              name="alert-triangle"
+              size={20}
+              color={colors.status.warning}
+            />
+            <Text
+              variant="bodySmall"
+              color="secondary"
+              style={styles.warningText}
+            >
+              You&apos;re approaching your daily transfer limit. Remaining after
+              this transfer: RM {(dailyRemaining - amount).toFixed(2)}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Bottom Button */}
+      <View
+        style={[styles.bottomContainer, { paddingBottom: insets.bottom + 16 }]}
+      >
+        <Text
+          variant="caption"
+          color="tertiary"
+          align="center"
+          style={styles.disclaimer}
+        >
+          By confirming, you agree that this transfer is final and cannot be
+          reversed.
+        </Text>
+        <Button
+          variant="primary"
+          size="large"
+          fullWidth
+          onPress={() => void handleConfirm()}
+          loading={isLoading}
+        >
+          Confirm &amp; Transfer
+        </Button>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background.secondary,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    backgroundColor: colors.background.primary,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonPressed: {
+    backgroundColor: colors.background.tertiary,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: spacing[4],
+    gap: spacing[4],
+  },
+  amountCard: {
+    alignItems: 'center',
+    padding: spacing[6],
+    backgroundColor: colors.background.primary,
+    borderRadius: borderRadius['2xl'],
+    gap: spacing[2],
+    ...shadows.sm,
+  },
+  amountText: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: colors.text.primary,
+  },
+  noteContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    paddingTop: spacing[2],
+  },
+  detailsCard: {
+    padding: spacing[4],
+    backgroundColor: colors.background.primary,
+    borderRadius: borderRadius.xl,
+    ...shadows.sm,
+  },
+  sectionLabel: {
+    marginBottom: spacing[3],
+    letterSpacing: 0.5,
+  },
+  recipientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+  },
+  recipientInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  accountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+  },
+  accountIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.primary[50],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  accountInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  divider: {
+    marginVertical: spacing[4],
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing[1],
+  },
+  warningCard: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    padding: spacing[4],
+    backgroundColor: colors.status.warningBg,
+    borderRadius: borderRadius.lg,
+    alignItems: 'flex-start',
+  },
+  warningText: {
+    flex: 1,
+    lineHeight: 20,
+  },
+  bottomContainer: {
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[3],
+    backgroundColor: colors.background.primary,
+    borderTopWidth: 1,
+    borderTopColor: colors.border.subtle,
+    gap: spacing[3],
+  },
+  disclaimer: {
+    lineHeight: 18,
+  },
+});
+
+export default TransferReviewScreen;

@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import type { Recipient, Bank } from '@types/models';
+import type { Recipient, Bank } from '@types';
 
 interface TransferFlowState {
   // Current transfer data
@@ -20,7 +20,14 @@ interface TransferFlowState {
 
   // Flow state
   transferMethod: 'recent' | 'bank' | 'duitnow' | null;
-  currentStep: 'recipient' | 'bank' | 'details' | 'amount' | 'review' | 'processing' | 'complete';
+  currentStep:
+    | 'recipient'
+    | 'bank'
+    | 'details'
+    | 'amount'
+    | 'review'
+    | 'processing'
+    | 'complete';
 
   // Actions
   setSelectedRecipient: (recipient: Recipient | null) => void;
@@ -50,20 +57,15 @@ const initialState = {
 export const useTransferStore = create<TransferFlowState>((set) => ({
   ...initialState,
 
-  setSelectedRecipient: (recipient) =>
-    set({ selectedRecipient: recipient }),
+  setSelectedRecipient: (recipient) => set({ selectedRecipient: recipient }),
 
-  setSelectedBank: (bank) =>
-    set({ selectedBank: bank }),
+  setSelectedBank: (bank) => set({ selectedBank: bank }),
 
-  setAmount: (amount) =>
-    set({ amount }),
+  setAmount: (amount) => set({ amount }),
 
-  setNote: (note) =>
-    set({ note }),
+  setNote: (note) => set({ note }),
 
-  setNewRecipientName: (name) =>
-    set({ newRecipientName: name }),
+  setNewRecipientName: (name) => set({ newRecipientName: name }),
 
   setNewRecipientAccountNumber: (accountNumber) =>
     set({ newRecipientAccountNumber: accountNumber }),
@@ -71,22 +73,24 @@ export const useTransferStore = create<TransferFlowState>((set) => ({
   setNewRecipientPhoneNumber: (phoneNumber) =>
     set({ newRecipientPhoneNumber: phoneNumber }),
 
-  setTransferMethod: (method) =>
-    set({ transferMethod: method }),
+  setTransferMethod: (method) => set({ transferMethod: method }),
 
-  setCurrentStep: (step) =>
-    set({ currentStep: step }),
+  setCurrentStep: (step) => set({ currentStep: step }),
 
-  reset: () =>
-    set(initialState),
+  reset: () => set(initialState),
 }));
 
 /**
  * Selector hooks
  */
-export const useSelectedRecipient = () => useTransferStore((state) => state.selectedRecipient);
-export const useSelectedBank = () => useTransferStore((state) => state.selectedBank);
-export const useTransferAmount = () => useTransferStore((state) => state.amount);
+export const useSelectedRecipient = () =>
+  useTransferStore((state) => state.selectedRecipient);
+export const useSelectedBank = () =>
+  useTransferStore((state) => state.selectedBank);
+export const useTransferAmount = () =>
+  useTransferStore((state) => state.amount);
 export const useTransferNote = () => useTransferStore((state) => state.note);
-export const useTransferMethod = () => useTransferStore((state) => state.transferMethod);
-export const useCurrentTransferStep = () => useTransferStore((state) => state.currentStep);
+export const useTransferMethod = () =>
+  useTransferStore((state) => state.transferMethod);
+export const useCurrentTransferStep = () =>
+  useTransferStore((state) => state.currentStep);

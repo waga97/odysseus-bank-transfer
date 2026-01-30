@@ -12,7 +12,7 @@ import {
   type ViewStyle,
   type ImageSourcePropType,
 } from 'react-native';
-import { colors, palette } from '@theme/colors';
+import { palette } from '@theme/colors';
 import { borderRadius } from '@theme/borderRadius';
 import Text from './Text';
 
@@ -79,10 +79,7 @@ export function Avatar({
 
   return (
     <View style={[styles.container, styles.fallback, containerStyle, style]}>
-      <Text
-        variant={textVariantMap[size]}
-        color={palette.primary.contrast}
-      >
+      <Text variant={textVariantMap[size]} color={palette.primary.contrast}>
         {initials}
       </Text>
     </View>

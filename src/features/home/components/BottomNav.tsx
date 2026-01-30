@@ -6,7 +6,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text } from '@components/ui';
+import { Icon } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
@@ -21,16 +21,16 @@ interface BottomNavProps {
 
 interface NavItem {
   id: TabId;
-  icon: string;
+  iconName: string;
   isCenter?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { id: 'home', icon: '⌂' },
-  { id: 'cards', icon: '💳' },
-  { id: 'transfer', icon: '⇄', isCenter: true },
-  { id: 'analytics', icon: '📊' },
-  { id: 'settings', icon: '⚙' },
+  { id: 'home', iconName: 'home' },
+  { id: 'cards', iconName: 'credit-card' },
+  { id: 'transfer', iconName: 'repeat', isCenter: true },
+  { id: 'analytics', iconName: 'bar-chart-2' },
+  { id: 'settings', iconName: 'settings' },
 ];
 
 export function BottomNav({ activeTab = 'home', onTabPress }: BottomNavProps) {
@@ -54,7 +54,11 @@ export function BottomNav({ activeTab = 'home', onTabPress }: BottomNavProps) {
                 style={[styles.centerButton, componentShadows.buttonPrimary]}
                 onPress={() => onTabPress?.(item.id)}
               >
-                <Text style={styles.centerIcon}>{item.icon}</Text>
+                <Icon
+                  name={item.iconName}
+                  size={24}
+                  color={palette.primary.contrast}
+                />
               </Pressable>
             );
           }
@@ -65,14 +69,11 @@ export function BottomNav({ activeTab = 'home', onTabPress }: BottomNavProps) {
               style={styles.tabButton}
               onPress={() => onTabPress?.(item.id)}
             >
-              <Text
-                style={[
-                  styles.tabIcon,
-                  isActive && styles.tabIconActive,
-                ]}
-              >
-                {item.icon}
-              </Text>
+              <Icon
+                name={item.iconName}
+                size={24}
+                color={isActive ? palette.primary.main : colors.text.tertiary}
+              />
             </Pressable>
           );
         })}
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     maxWidth: 380,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: colors.surface.primary,
     borderRadius: borderRadius.full,
     borderWidth: 1,
     borderColor: colors.border.primary,
@@ -110,13 +111,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: spacing[2],
   },
-  tabIcon: {
-    fontSize: 24,
-    color: colors.text.tertiary,
-  },
-  tabIconActive: {
-    color: palette.primary.main,
-  },
   centerButton: {
     width: 56,
     height: 56,
@@ -127,10 +121,6 @@ const styles = StyleSheet.create({
     marginTop: -spacing[8],
     borderWidth: 4,
     borderColor: colors.surface.primary,
-  },
-  centerIcon: {
-    fontSize: 24,
-    color: palette.primary.contrast,
   },
 });
 

@@ -82,7 +82,9 @@ export const colors = {
   border: {
     primary: '#e2e8f0',
     secondary: '#f1f5f9',
+    subtle: '#f1f5f9',
     focus: palette.primary.main,
+    transparent: 'transparent',
   },
 
   // Interactive
@@ -105,6 +107,26 @@ export const colors = {
     errorBackground: palette.error.light,
     info: palette.info.main,
     infoBackground: palette.info.light,
+  },
+
+  // Status (alias for semantic - easier to use)
+  status: {
+    success: palette.success.main,
+    successBg: palette.success.light,
+    warning: palette.warning.main,
+    warningBg: palette.warning.light,
+    error: palette.error.main,
+    errorBg: palette.error.light,
+    info: palette.info.main,
+    infoBg: palette.info.light,
+  },
+
+  // Primary colors (for direct access)
+  primary: {
+    50: '#fdf2f4',
+    100: '#fce4e9',
+    600: palette.primary.main,
+    700: palette.primary.dark,
   },
 
   // Shadows (for iOS)

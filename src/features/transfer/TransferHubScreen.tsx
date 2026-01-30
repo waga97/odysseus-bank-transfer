@@ -13,7 +13,7 @@ import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { useRecentRecipients } from '@stores/accountStore';
 import { useTransferStore } from '@stores/transferStore';
-import type { Recipient } from '@types/models';
+import type { Recipient } from '@types';
 import {
   TransferHeader,
   SearchBar,

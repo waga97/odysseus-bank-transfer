@@ -11,6 +11,10 @@ import { colors } from '@theme/colors';
 // Screens
 import { HomeScreen } from '@features/home';
 import { TransferHubScreen } from '@features/transfer';
+import { BankSelectionScreen } from '@features/bank-selection';
+import { RecipientDetailsScreen } from '@features/recipient';
+import { AmountEntryScreen } from '@features/amount';
+import { TransferReviewScreen } from '@features/review';
 import { PlaceholderScreen } from './PlaceholderScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,11 +38,14 @@ export function RootNavigator() {
 
       {/* Transfer Flow */}
       <Stack.Screen name="TransferHub" component={TransferHubScreen} />
-      <Stack.Screen name="BankSelection" component={PlaceholderScreen} />
-      <Stack.Screen name="RecipientDetails" component={PlaceholderScreen} />
+      <Stack.Screen name="BankSelection" component={BankSelectionScreen} />
+      <Stack.Screen
+        name="RecipientDetails"
+        component={RecipientDetailsScreen}
+      />
       <Stack.Screen name="ContactPicker" component={PlaceholderScreen} />
-      <Stack.Screen name="AmountEntry" component={PlaceholderScreen} />
-      <Stack.Screen name="TransferReview" component={PlaceholderScreen} />
+      <Stack.Screen name="AmountEntry" component={AmountEntryScreen} />
+      <Stack.Screen name="TransferReview" component={TransferReviewScreen} />
       <Stack.Screen
         name="TransferProcessing"
         component={PlaceholderScreen}

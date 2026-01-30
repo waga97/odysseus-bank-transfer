@@ -15,7 +15,7 @@ import { Text, Avatar } from '@components/ui';
 import { colors } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
-import type { Recipient } from '@types/models';
+import type { Recipient } from '@types';
 
 interface RecipientListProps {
   recipients: Recipient[];

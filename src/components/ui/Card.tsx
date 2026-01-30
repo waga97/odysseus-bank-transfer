@@ -21,6 +21,7 @@ type CardVariant = 'default' | 'elevated' | 'outlined' | 'hero';
 
 interface CardProps extends Omit<ViewProps, 'style'> {
   variant?: CardVariant;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   padding?: keyof typeof spacing | number;
   onPress?: () => void;
   disabled?: boolean;
@@ -37,9 +38,12 @@ export function Card({
   children,
   ...rest
 }: CardProps) {
-  const paddingValue = typeof padding === 'number' && padding in spacing
-    ? spacing[padding as keyof typeof spacing]
-    : padding;
+  const paddingValue =
+    typeof padding === 'number' && padding in spacing
+      ? spacing[padding as keyof typeof spacing]
+      : typeof padding === 'number'
+        ? padding
+        : spacing[padding];
 
   const getVariantStyles = (): ViewStyle => {
     switch (variant) {

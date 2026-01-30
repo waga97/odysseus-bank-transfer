@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import type { User, BiometricStatus, BiometricType } from '@types/models';
+import type { User, BiometricStatus, BiometricType } from '@types';
 
 interface AuthState {
   // State
@@ -48,7 +48,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   setBiometricStatus: (status) =>
     set({
       biometricStatus: status,
-      preferredBiometricType: status.preferredType ?? status.supportedTypes[0] ?? null,
+      preferredBiometricType:
+        status.preferredType ?? status.supportedTypes[0] ?? null,
     }),
 
   setPreferredBiometricType: (type) =>
@@ -66,6 +67,9 @@ export const useAuthStore = create<AuthState>((set) => ({
  * Selector hooks for optimized re-renders
  */
 export const useUser = () => useAuthStore((state) => state.user);
-export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
-export const useBiometricStatus = () => useAuthStore((state) => state.biometricStatus);
-export const usePreferredBiometricType = () => useAuthStore((state) => state.preferredBiometricType);
+export const useIsAuthenticated = () =>
+  useAuthStore((state) => state.isAuthenticated);
+export const useBiometricStatus = () =>
+  useAuthStore((state) => state.biometricStatus);
+export const usePreferredBiometricType = () =>
+  useAuthStore((state) => state.preferredBiometricType);

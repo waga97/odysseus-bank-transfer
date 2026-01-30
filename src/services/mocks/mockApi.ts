@@ -13,7 +13,7 @@ import {
   generateReferenceId,
   generateTransactionId,
 } from './data';
-import type { Transaction, TransferRequest } from '@types/models';
+import type { Transaction, TransferRequest } from '@types';
 
 // In-memory state for mutations
 let currentBalance = mockAccounts[0]?.balance ?? 0;

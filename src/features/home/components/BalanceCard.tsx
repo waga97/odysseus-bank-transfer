@@ -5,7 +5,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Text } from '@components/ui';
+import { Text, Icon } from '@components/ui';
 import { colors } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { useBalance } from '@stores/accountStore';
@@ -18,7 +18,9 @@ export function BalanceCard() {
     setIsHidden((prev) => !prev);
   }, []);
 
-  const formatBalance = (amount: number): { whole: string; decimal: string } => {
+  const formatBalance = (
+    amount: number
+  ): { whole: string; decimal: string } => {
     const formatted = amount.toLocaleString('en-MY', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -37,9 +39,11 @@ export function BalanceCard() {
           Total Balance
         </Text>
         <Pressable onPress={toggleVisibility} hitSlop={8}>
-          <Text style={styles.visibilityIcon}>
-            {isHidden ? '◌' : '👁'}
-          </Text>
+          <Icon
+            name={isHidden ? 'eye-off' : 'eye'}
+            size={18}
+            color={colors.text.tertiary}
+          />
         </Pressable>
       </View>
 
@@ -57,7 +61,7 @@ export function BalanceCard() {
 
       {/* Trend Indicator */}
       <View style={styles.trendContainer}>
-        <Text style={styles.trendIcon}>↑</Text>
+        <Icon name="trending-up" size={14} color={colors.semantic.success} />
         <Text variant="labelSmall" color={colors.semantic.success}>
           +2.4% this month
         </Text>
@@ -77,10 +81,6 @@ const styles = StyleSheet.create({
     gap: spacing[2],
     marginBottom: spacing[1],
   },
-  visibilityIcon: {
-    fontSize: 18,
-    color: colors.text.tertiary,
-  },
   balanceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
@@ -94,10 +94,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: 100,
-  },
-  trendIcon: {
-    fontSize: 12,
-    color: colors.semantic.success,
   },
 });
 

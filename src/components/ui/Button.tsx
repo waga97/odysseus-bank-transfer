@@ -14,7 +14,6 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { colors, palette } from '@theme/colors';
-import { typography } from '@theme/typography';
 import { componentRadius } from '@theme/borderRadius';
 import { componentShadows } from '@theme/shadows';
 import { spacing } from '@theme/spacing';
@@ -123,7 +122,9 @@ export function Button({
     if (variant === 'outline') {
       return {
         borderWidth: 1.5,
-        borderColor: isDisabled ? colors.border.primary : colors.interactive.primary,
+        borderColor: isDisabled
+          ? colors.border.primary
+          : colors.interactive.primary,
       };
     }
     return {};
@@ -152,17 +153,11 @@ export function Button({
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={getTextColor()}
-        />
+        <ActivityIndicator size="small" color={getTextColor()} />
       ) : (
         <View style={styles.content}>
           {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
-          <Text
-            variant={textVariants[size]}
-            color={getTextColor()}
-          >
+          <Text variant={textVariants[size]} color={getTextColor()}>
             {children}
           </Text>
           {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}

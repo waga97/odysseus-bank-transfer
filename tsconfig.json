@@ -26,6 +26,7 @@
       "@hooks/*": ["src/hooks/*"],
       "@utils/*": ["src/utils/*"],
       "@theme/*": ["src/theme/*"],
+      "@types": ["src/types"],
       "@types/*": ["src/types/*"],
       "@constants/*": ["src/constants/*"],
       "@assets/*": ["assets/*"]

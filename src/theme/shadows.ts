@@ -3,11 +3,16 @@
  * Cross-platform shadow definitions
  */
 
-import { Platform, ViewStyle } from 'react-native';
+import type { ViewStyle } from 'react-native';
+import { Platform } from 'react-native';
 
 type ShadowStyle = Pick<
   ViewStyle,
-  'shadowColor' | 'shadowOffset' | 'shadowOpacity' | 'shadowRadius' | 'elevation'
+  | 'shadowColor'
+  | 'shadowOffset'
+  | 'shadowOpacity'
+  | 'shadowRadius'
+  | 'elevation'
 >;
 
 /**

@@ -14,6 +14,7 @@ import {
 import { colors } from '@theme/colors';
 import { typography, type TypographyVariantKey } from '@theme/typography';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type TextColor = keyof typeof colors.text | string;
 
 interface TextProps extends Omit<RNTextProps, 'style'> {
@@ -34,9 +35,10 @@ export function Text({
 }: TextProps) {
   const variantStyle = typography[variant];
 
-  const textColor = color in colors.text
-    ? colors.text[color as keyof typeof colors.text]
-    : color;
+  const textColor =
+    color in colors.text
+      ? colors.text[color as keyof typeof colors.text]
+      : color;
 
   return (
     <RNText

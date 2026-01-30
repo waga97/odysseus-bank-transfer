@@ -14,7 +14,7 @@ import type {
   TransferRequest,
   TransferValidationResult,
   PaginatedResponse,
-} from '@types/models';
+} from '@types';
 
 /**
  * User API

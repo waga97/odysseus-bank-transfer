@@ -130,7 +130,7 @@ export function HomeScreen() {
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
-            onRefresh={loadData}
+            onRefresh={() => void loadData()}
             tintColor={colors.interactive.primary}
           />
         }
