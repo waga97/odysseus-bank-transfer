@@ -1,0 +1,606 @@
+/**
+ * Odysseus Bank - Biometric Authentication Screen
+ * Face ID / Fingerprint / PIN fallback for transaction authorization
+ */
+
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  StatusBar,
+  Animated,
+  Platform,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { Text, Icon, Button } from '@components/ui';
+import { colors, palette } from '@theme/colors';
+import { spacing } from '@theme/spacing';
+import { borderRadius } from '@theme/borderRadius';
+import type { RootStackScreenProps } from '@navigation/types';
+
+type Props = RootStackScreenProps<'BiometricAuth'>;
+
+type AuthState = 'idle' | 'authenticating' | 'success' | 'failed' | 'cancelled';
+type BiometricType = 'faceid' | 'fingerprint' | 'none';
+
+export function BiometricAuthScreen({ navigation, route }: Props) {
+  const { recipient, amount, note } = route.params;
+  const insets = useSafeAreaInsets();
+
+  const [authState, setAuthState] = useState<AuthState>('idle');
+  const [biometricType, setBiometricType] = useState<BiometricType>('none');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [showPinFallback, setShowPinFallback] = useState(false);
+  const [pin, setPin] = useState('');
+
+  // Animation values
+  const pulseAnim = useState(new Animated.Value(1))[0];
+  const shakeAnim = useState(new Animated.Value(0))[0];
+
+  // Check biometric availability on mount
+  useEffect(() => {
+    void checkBiometricType();
+  }, []);
+
+  // Start authentication automatically
+  useEffect(() => {
+    if (biometricType !== 'none' && authState === 'idle') {
+      void authenticate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [biometricType]);
+
+  // Pulse animation for the icon
+  useEffect(() => {
+    if (authState === 'authenticating') {
+      const pulse = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      pulse.start();
+      return () => pulse.stop();
+    }
+  }, [authState, pulseAnim]);
+
+  const checkBiometricType = async () => {
+    try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      if (!compatible) {
+        setBiometricType('none');
+        setShowPinFallback(true);
+        return;
+      }
+
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!enrolled) {
+        setBiometricType('none');
+        setShowPinFallback(true);
+        return;
+      }
+
+      const types =
+        await LocalAuthentication.supportedAuthenticationTypesAsync();
+      if (
+        types.includes(
+          LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
+        )
+      ) {
+        setBiometricType('faceid');
+      } else if (
+        types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)
+      ) {
+        setBiometricType('fingerprint');
+      } else {
+        setBiometricType('none');
+        setShowPinFallback(true);
+      }
+    } catch {
+      setBiometricType('none');
+      setShowPinFallback(true);
+    }
+  };
+
+  const authenticate = async () => {
+    setAuthState('authenticating');
+
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: `Authorize transfer of RM ${amount.toFixed(2)}`,
+        cancelLabel: 'Use PIN',
+        disableDeviceFallback: true,
+        fallbackLabel: 'Use PIN',
+      });
+
+      if (result.success) {
+        setAuthState('success');
+        // Navigate to processing after short delay
+        setTimeout(() => {
+          navigation.replace('TransferProcessing', {
+            transferId: `txn-${Date.now()}`,
+            recipient,
+            amount,
+            note,
+          });
+        }, 500);
+      } else if (result.error === 'user_cancel') {
+        setAuthState('cancelled');
+        setShowPinFallback(true);
+      } else {
+        setAuthState('failed');
+        setFailedAttempts((prev) => prev + 1);
+        triggerShake();
+
+        if (failedAttempts >= 2) {
+          setShowPinFallback(true);
+        }
+      }
+    } catch {
+      setAuthState('failed');
+      setShowPinFallback(true);
+    }
+  };
+
+  const triggerShake = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleRetry = useCallback(() => {
+    setAuthState('idle');
+    setFailedAttempts(0);
+    void authenticate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handlePinPress = useCallback(
+    (digit: string) => {
+      if (pin.length < 6) {
+        const newPin = pin + digit;
+        setPin(newPin);
+
+        if (newPin.length === 6) {
+          // Simulate PIN verification
+          setTimeout(() => {
+            // For demo, any 6-digit PIN works
+            setAuthState('success');
+            setTimeout(() => {
+              navigation.replace('TransferProcessing', {
+                transferId: `txn-${Date.now()}`,
+                recipient,
+                amount,
+                note,
+              });
+            }, 500);
+          }, 300);
+        }
+      }
+    },
+    [pin, navigation, recipient, amount, note]
+  );
+
+  const handlePinDelete = useCallback(() => {
+    setPin((prev) => prev.slice(0, -1));
+  }, []);
+
+  const handleUseBiometric = useCallback(() => {
+    setShowPinFallback(false);
+    setPin('');
+    void authenticate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getBiometricIcon = () => {
+    if (biometricType === 'faceid') {
+      return 'eye'; // Using eye as Face ID substitute
+    }
+    return 'shield'; // Using shield as fingerprint substitute
+  };
+
+  const getBiometricLabel = () => {
+    if (biometricType === 'faceid') {
+      return Platform.OS === 'ios' ? 'Face ID' : 'Face Recognition';
+    }
+    return Platform.OS === 'ios' ? 'Touch ID' : 'Fingerprint';
+  };
+
+  const getStatusMessage = () => {
+    switch (authState) {
+      case 'authenticating':
+        return `Verifying ${getBiometricLabel()}...`;
+      case 'success':
+        return 'Verified!';
+      case 'failed':
+        return 'Verification failed. Please try again.';
+      case 'cancelled':
+        return 'Authentication cancelled';
+      default:
+        return `Use ${getBiometricLabel()} to authorize`;
+    }
+  };
+
+  // Format amount for display
+  const formattedAmount = `RM ${amount.toFixed(2)}`;
+
+  // PIN Input UI
+  if (showPinFallback) {
+    return (
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <StatusBar barStyle="dark-content" />
+
+        {/* Header */}
+        <View style={styles.header}>
+          <Pressable style={styles.backButton} onPress={handleBack}>
+            <Icon name="arrow-left" size={24} color={colors.text.primary} />
+          </Pressable>
+          <Text variant="titleMedium" color="primary">
+            Enter PIN
+          </Text>
+          <View style={styles.headerSpacer} />
+        </View>
+
+        <View style={styles.pinContent}>
+          {/* Amount Display */}
+          <View style={styles.amountContainer}>
+            <Text variant="bodySmall" color="tertiary">
+              Authorize transfer of
+            </Text>
+            <Text style={styles.pinAmountText}>{formattedAmount}</Text>
+            <Text variant="bodySmall" color="tertiary">
+              to {recipient.name}
+            </Text>
+          </View>
+
+          {/* PIN Dots */}
+          <View style={styles.pinDotsContainer}>
+            {[0, 1, 2, 3, 4, 5].map((index) => (
+              <View
+                key={index}
+                style={[
+                  styles.pinDot,
+                  pin.length > index && styles.pinDotFilled,
+                ]}
+              />
+            ))}
+          </View>
+
+          {/* Use Biometric Option */}
+          {biometricType !== 'none' && (
+            <Pressable
+              style={styles.useBiometricButton}
+              onPress={handleUseBiometric}
+            >
+              <Icon
+                name={getBiometricIcon()}
+                size={20}
+                color={palette.primary.main}
+              />
+              <Text variant="labelMedium" color={palette.primary.main}>
+                Use {getBiometricLabel()} instead
+              </Text>
+            </Pressable>
+          )}
+
+          {/* PIN Keypad */}
+          <View style={styles.pinKeypad}>
+            {[
+              ['1', '2', '3'],
+              ['4', '5', '6'],
+              ['7', '8', '9'],
+              ['', '0', 'delete'],
+            ].map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.pinKeypadRow}>
+                {row.map((key) => {
+                  if (key === '') {
+                    return <View key="empty" style={styles.pinKey} />;
+                  }
+                  if (key === 'delete') {
+                    return (
+                      <Pressable
+                        key="delete"
+                        style={({ pressed }) => [
+                          styles.pinKey,
+                          pressed && styles.pinKeyPressed,
+                        ]}
+                        onPress={handlePinDelete}
+                      >
+                        <Icon
+                          name="delete"
+                          size={24}
+                          color={colors.text.primary}
+                        />
+                      </Pressable>
+                    );
+                  }
+                  return (
+                    <Pressable
+                      key={key}
+                      style={({ pressed }) => [
+                        styles.pinKey,
+                        pressed && styles.pinKeyPressed,
+                      ]}
+                      onPress={() => handlePinPress(key)}
+                    >
+                      <Text style={styles.pinKeyText}>{key}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Biometric Auth UI
+  return (
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <Pressable style={styles.backButton} onPress={handleBack}>
+          <Icon name="arrow-left" size={24} color={colors.text.primary} />
+        </Pressable>
+        <Text variant="titleMedium" color="primary">
+          Authorize Transfer
+        </Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <View style={styles.content}>
+        {/* Amount Display */}
+        <View style={styles.amountContainer}>
+          <Text variant="bodySmall" color="tertiary">
+            You&apos;re sending
+          </Text>
+          <Text style={styles.amountText}>{formattedAmount}</Text>
+          <Text variant="bodySmall" color="tertiary">
+            to {recipient.name}
+          </Text>
+        </View>
+
+        {/* Biometric Icon */}
+        <Animated.View
+          style={[
+            styles.biometricIconContainer,
+            {
+              transform: [{ scale: pulseAnim }, { translateX: shakeAnim }],
+            },
+            authState === 'success' && styles.biometricIconSuccess,
+            authState === 'failed' && styles.biometricIconFailed,
+          ]}
+        >
+          <Icon
+            name={authState === 'success' ? 'check' : getBiometricIcon()}
+            size={48}
+            color={
+              authState === 'success'
+                ? colors.status.success
+                : authState === 'failed'
+                  ? colors.status.error
+                  : palette.primary.main
+            }
+          />
+        </Animated.View>
+
+        {/* Status Message */}
+        <Text
+          variant="bodyMedium"
+          color={authState === 'failed' ? colors.status.error : 'secondary'}
+          align="center"
+        >
+          {getStatusMessage()}
+        </Text>
+
+        {/* Retry Button */}
+        {authState === 'failed' && (
+          <Button
+            variant="secondary"
+            size="medium"
+            onPress={handleRetry}
+            style={styles.retryButton}
+          >
+            Try Again
+          </Button>
+        )}
+
+        {/* Use PIN Option */}
+        <Pressable
+          style={styles.usePinButton}
+          onPress={() => setShowPinFallback(true)}
+        >
+          <Text variant="labelMedium" color={palette.primary.main}>
+            Use PIN instead
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* Cancel Button */}
+      <View
+        style={[styles.bottomContainer, { paddingBottom: insets.bottom + 16 }]}
+      >
+        <Button variant="ghost" size="large" fullWidth onPress={handleBack}>
+          Cancel
+        </Button>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background.primary,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: borderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing[6],
+    gap: spacing[6],
+  },
+  amountContainer: {
+    alignItems: 'center',
+    gap: spacing[1],
+  },
+  amountText: {
+    fontSize: 40,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginVertical: spacing[2],
+  },
+  biometricIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: palette.primary.main,
+  },
+  biometricIconSuccess: {
+    backgroundColor: colors.status.successBg,
+    borderColor: colors.status.success,
+  },
+  biometricIconFailed: {
+    backgroundColor: colors.status.errorBg,
+    borderColor: colors.status.error,
+  },
+  retryButton: {
+    marginTop: spacing[2],
+  },
+  usePinButton: {
+    paddingVertical: spacing[3],
+    paddingHorizontal: spacing[4],
+  },
+  bottomContainer: {
+    paddingHorizontal: spacing[4],
+    paddingTop: spacing[3],
+  },
+  // PIN styles
+  pinContent: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[8],
+  },
+  pinAmountText: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.text.primary,
+    marginVertical: spacing[1],
+  },
+  pinDotsContainer: {
+    flexDirection: 'row',
+    gap: spacing[4],
+    marginTop: spacing[8],
+    marginBottom: spacing[4],
+  },
+  pinDot: {
+    width: 16,
+    height: 16,
+    borderRadius: borderRadius.full,
+    borderWidth: 2,
+    borderColor: colors.border.primary,
+    backgroundColor: colors.background.primary,
+  },
+  pinDotFilled: {
+    backgroundColor: palette.primary.main,
+    borderColor: palette.primary.main,
+  },
+  useBiometricButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[3],
+    marginBottom: spacing[4],
+  },
+  pinKeypad: {
+    marginTop: 'auto',
+    marginBottom: spacing[4],
+    width: '100%',
+    maxWidth: 300,
+  },
+  pinKeypadRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: spacing[3],
+  },
+  pinKey: {
+    width: 80,
+    height: 80,
+    borderRadius: borderRadius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background.secondary,
+  },
+  pinKeyPressed: {
+    backgroundColor: colors.interactive.secondary,
+  },
+  pinKeyText: {
+    fontSize: 28,
+    fontWeight: '500',
+    color: colors.text.primary,
+  },
+});
+
+export default BiometricAuthScreen;

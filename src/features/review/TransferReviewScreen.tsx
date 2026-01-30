@@ -34,25 +34,18 @@ export function TransferReviewScreen({ navigation, route }: Props) {
     navigation.goBack();
   }, [navigation]);
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(() => {
     setIsLoading(true);
 
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Navigate to success (in real app, this would go through biometric + API)
-    navigation.replace('TransferSuccess', {
-      transaction: {
-        id: `txn-${Date.now()}`,
-        amount,
-        recipientName: recipient.name,
-        recipientAccount: recipient.accountNumber,
-        bankName: recipient.bankName,
-        date: new Date().toISOString(),
-        reference: `ODS-${Math.floor(10000 + Math.random() * 90000)}`,
-        note,
-      },
+    // Navigate to biometric authentication
+    navigation.navigate('BiometricAuth', {
+      recipient,
+      amount,
+      note,
     });
+
+    // Reset loading state after navigation
+    setTimeout(() => setIsLoading(false), 500);
   }, [amount, recipient, note, navigation]);
 
   // Format amount
@@ -223,7 +216,7 @@ export function TransferReviewScreen({ navigation, route }: Props) {
           variant="primary"
           size="large"
           fullWidth
-          onPress={() => void handleConfirm()}
+          onPress={handleConfirm}
           loading={isLoading}
         >
           Confirm &amp; Transfer

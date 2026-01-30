@@ -15,6 +15,10 @@ import { BankSelectionScreen } from '@features/bank-selection';
 import { RecipientDetailsScreen } from '@features/recipient';
 import { AmountEntryScreen } from '@features/amount';
 import { TransferReviewScreen } from '@features/review';
+import { BiometricAuthScreen } from '@features/biometric';
+import { TransferProcessingScreen } from '@features/processing';
+import { TransferSuccessScreen } from '@features/success';
+import { TransferErrorScreen } from '@features/error';
 import { PlaceholderScreen } from './PlaceholderScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -47,20 +51,35 @@ export function RootNavigator() {
       <Stack.Screen name="AmountEntry" component={AmountEntryScreen} />
       <Stack.Screen name="TransferReview" component={TransferReviewScreen} />
       <Stack.Screen
+        name="BiometricAuth"
+        component={BiometricAuthScreen}
+        options={{
+          animation: 'fade',
+        }}
+      />
+      <Stack.Screen
         name="TransferProcessing"
-        component={PlaceholderScreen}
+        component={TransferProcessingScreen}
         options={{
           gestureEnabled: false, // Prevent back gesture during processing
+          animation: 'fade',
         }}
       />
       <Stack.Screen
         name="TransferSuccess"
-        component={PlaceholderScreen}
+        component={TransferSuccessScreen}
         options={{
           gestureEnabled: false, // Force user to use "Done" button
+          animation: 'fade',
         }}
       />
-      <Stack.Screen name="TransferError" component={PlaceholderScreen} />
+      <Stack.Screen
+        name="TransferError"
+        component={TransferErrorScreen}
+        options={{
+          animation: 'fade',
+        }}
+      />
 
       {/* History */}
       <Stack.Screen name="TransferHistory" component={PlaceholderScreen} />

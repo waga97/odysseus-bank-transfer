@@ -42,8 +42,30 @@ export type RootStackParamList = {
     amount: number;
     note?: string;
   };
+  BiometricAuth: {
+    recipient: {
+      id: string;
+      name: string;
+      accountNumber?: string;
+      phoneNumber?: string;
+      bankName?: string;
+      avatar?: string;
+    };
+    amount: number;
+    note?: string;
+  };
   TransferProcessing: {
     transferId: string;
+    recipient: {
+      id: string;
+      name: string;
+      accountNumber?: string;
+      phoneNumber?: string;
+      bankName?: string;
+      avatar?: string;
+    };
+    amount: number;
+    note?: string;
   };
   TransferSuccess: {
     transaction: {
@@ -58,7 +80,13 @@ export type RootStackParamList = {
     };
   };
   TransferError: {
-    errorType: 'insufficient_funds' | 'network_error' | 'daily_limit' | 'recipient_not_found' | 'duplicate_transfer' | 'generic';
+    errorType:
+      | 'insufficient_funds'
+      | 'network_error'
+      | 'daily_limit'
+      | 'recipient_not_found'
+      | 'duplicate_transfer'
+      | 'generic';
     errorMessage?: string;
     details?: Record<string, unknown>;
   };
