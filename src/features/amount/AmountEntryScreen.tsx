@@ -7,7 +7,7 @@ import React, { useCallback, useState, useMemo } from 'react';
 import { View, StyleSheet, Pressable, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Avatar, Icon, Input, Button } from '@components/ui';
-import { colors } from '@theme/colors';
+import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
 import type { RootStackScreenProps } from '@navigation/types';
@@ -200,20 +200,27 @@ export function AmountEntryScreen({ navigation, route }: Props) {
 
         {/* Quick Amounts */}
         <View style={styles.quickAmounts}>
-          {QUICK_AMOUNTS.map((value) => (
-            <Pressable
-              key={value}
-              style={({ pressed }) => [
-                styles.quickAmountButton,
-                pressed && styles.quickAmountButtonPressed,
-              ]}
-              onPress={() => handleQuickAmount(value)}
-            >
-              <Text variant="labelMedium" color="primary">
-                RM {value}
-              </Text>
-            </Pressable>
-          ))}
+          {QUICK_AMOUNTS.map((value) => {
+            const isActive = numericAmount === value;
+            return (
+              <Pressable
+                key={value}
+                style={({ pressed }) => [
+                  styles.quickAmountButton,
+                  isActive && styles.quickAmountButtonActive,
+                  pressed && styles.quickAmountButtonPressed,
+                ]}
+                onPress={() => handleQuickAmount(value)}
+              >
+                <Text
+                  variant="labelMedium"
+                  color={isActive ? 'inverse' : 'primary'}
+                >
+                  RM {value}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
       </View>
 
@@ -334,13 +341,15 @@ const styles = StyleSheet.create({
   },
   amountSection: {
     alignItems: 'center',
-    paddingVertical: spacing[6],
-    gap: spacing[4],
+    paddingVertical: spacing[4],
+    gap: spacing[3],
   },
   amountContainer: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: spacing[2],
+    minHeight: 60,
   },
   currencySymbol: {
     fontSize: 24,
@@ -351,8 +360,7 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: '600',
     color: colors.text.primary,
-    minWidth: 100,
-    textAlign: 'center',
+    lineHeight: 56,
   },
   quickAmounts: {
     flexDirection: 'row',
@@ -363,6 +371,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[2],
     backgroundColor: colors.background.secondary,
     borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.border.primary,
+  },
+  quickAmountButtonActive: {
+    backgroundColor: palette.primary.main,
+    borderColor: palette.primary.main,
   },
   quickAmountButtonPressed: {
     backgroundColor: colors.background.tertiary,
@@ -384,12 +398,12 @@ const styles = StyleSheet.create({
   numpad: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: spacing[6],
+    paddingHorizontal: spacing[4],
     justifyContent: 'center',
   },
   numpadKey: {
     width: '33.33%',
-    aspectRatio: 1.8,
+    height: 56,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -401,6 +415,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '500',
     color: colors.text.primary,
+    lineHeight: 34,
   },
   bottomContainer: {
     paddingHorizontal: spacing[4],

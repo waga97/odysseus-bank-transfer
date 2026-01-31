@@ -61,7 +61,7 @@ export function BankSelectionScreen({ navigation }: Props) {
     [navigation]
   );
 
-  // Separate popular and other banks
+  // Separate popular and other banks, sorted alphabetically
   const { popularBanks, otherBanks } = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
 
@@ -73,9 +73,11 @@ export function BankSelectionScreen({ navigation }: Props) {
         )
       : banks;
 
+    const sortByName = (a: Bank, b: Bank) => a.name.localeCompare(b.name);
+
     return {
-      popularBanks: filtered.filter((b) => b.isPopular),
-      otherBanks: filtered.filter((b) => !b.isPopular),
+      popularBanks: filtered.filter((b) => b.isPopular).sort(sortByName),
+      otherBanks: filtered.filter((b) => !b.isPopular).sort(sortByName),
     };
   }, [banks, searchQuery]);
 
@@ -118,7 +120,9 @@ export function BankSelectionScreen({ navigation }: Props) {
             placeholder="Search banks"
             value={searchQuery}
             onChangeText={setSearchQuery}
-            leftIcon="search"
+            leftIcon={
+              <Icon name="search" size={20} color={colors.text.tertiary} />
+            }
             containerStyle={styles.searchInput}
           />
         </View>

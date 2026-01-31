@@ -19,7 +19,6 @@ interface Tab {
 const tabs: Tab[] = [
   { id: 'bank', label: 'Bank/eWallet' },
   { id: 'mobile', label: 'Mobile' },
-  { id: 'others', label: 'Others' },
 ];
 
 interface TabBarProps {

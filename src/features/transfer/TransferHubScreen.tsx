@@ -99,14 +99,6 @@ export function TransferHubScreen() {
             title="Recent DuitNow"
           />
         );
-      case 'others':
-        return (
-          <View style={styles.emptyTab}>
-            <Text variant="bodyMedium" color="tertiary" align="center">
-              Other transfer methods coming soon
-            </Text>
-          </View>
-        );
       default:
         return null;
     }
@@ -162,12 +154,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  emptyTab: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing[8],
   },
   bottomContainer: {
     position: 'absolute',

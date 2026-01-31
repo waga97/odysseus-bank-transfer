@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: '700',
     color: colors.text.primary,
+    lineHeight: 44,
     marginVertical: spacing[1],
   },
   loadingContainer: {

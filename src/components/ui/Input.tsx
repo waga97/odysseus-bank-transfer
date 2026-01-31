@@ -48,12 +48,16 @@ export const Input = forwardRef<TextInput, InputProps>(
   ) => {
     const [isFocused, setIsFocused] = useState(false);
 
-    const handleFocus = (e: Parameters<NonNullable<TextInputProps['onFocus']>>[0]) => {
+    const handleFocus = (
+      e: Parameters<NonNullable<TextInputProps['onFocus']>>[0]
+    ) => {
       setIsFocused(true);
       onFocus?.(e);
     };
 
-    const handleBlur = (e: Parameters<NonNullable<TextInputProps['onBlur']>>[0]) => {
+    const handleBlur = (
+      e: Parameters<NonNullable<TextInputProps['onBlur']>>[0]
+    ) => {
       setIsFocused(false);
       onBlur?.(e);
     };
@@ -78,11 +82,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     return (
       <View style={[styles.container, containerStyle]}>
         {label && (
-          <Text
-            variant="labelMedium"
-            color="secondary"
-            style={styles.label}
-          >
+          <Text variant="labelMedium" color="secondary" style={styles.label}>
             {label}
           </Text>
         )}
@@ -113,6 +113,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             editable={!disabled}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            keyboardAppearance="light"
             {...rest}
           />
 

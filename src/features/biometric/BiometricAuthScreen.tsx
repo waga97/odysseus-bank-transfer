@@ -505,6 +505,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: '700',
     color: colors.text.primary,
+    lineHeight: 48,
     marginVertical: spacing[2],
   },
   biometricIconContainer: {
@@ -547,6 +548,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: colors.text.primary,
+    lineHeight: 40,
     marginVertical: spacing[1],
   },
   pinDotsContainer: {
@@ -600,6 +602,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '500',
     color: colors.text.primary,
+    lineHeight: 34,
   },
 });
 
