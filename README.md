@@ -1,49 +1,44 @@
 # Odysseus Bank
 
-A React Native banking app built with Expo.
+Payment Transfer Module with Biometric Authentication for the Odysseus Bank mobile app.
 
-## Features
+## Overview
 
-- Fund transfers (Bank & DuitNow)
-- Biometric authentication (Face ID / Touch ID / Fingerprint)
-- Contact picker for DuitNow transfers
+This module handles the complete P2P money transfer flow, including recipient selection, amount entry, transfer limits validation, biometric authentication (with PIN fallback), and transaction processing. Built with React Native + Expo, targeting both iOS and Android.
+
+## Tech Stack
+
+- **React Native 0.81** + **Expo 54** (managed workflow with dev client)
+- **TypeScript** with strict mode enabled
+- **React Navigation 6** - native stack for performant transitions
+- **Zustand** - lightweight state management
+- **expo-local-authentication** - Face ID / Touch ID / Fingerprint
+- **expo-contacts** - DuitNow contact-based transfers
+- **Jest** + React Native Testing Library for unit tests
 
 ## Prerequisites
 
 - Node.js 18+
-- Xcode (for iOS)
-- Android Studio (for Android)
-- CocoaPods (for iOS)
-- Physical device (for biometric testing)
+- Xcode 15+ (iOS development)
+- Android Studio (Android development)
+- CocoaPods (iOS native dependencies)
+- Physical device recommended for biometric testing
 
 ## Getting Started
 
-### 1. Install dependencies
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Choose your run method
+### Development Build (Recommended)
 
-#### Option A: Expo Go (Limited Features)
-
-```bash
-npx expo start
-```
-
-Scan the QR code with Expo Go app.
-
-**Note:** Biometrics (Face ID / Touch ID / Fingerprint) will NOT work in Expo Go due to permission limitations.
-
-#### Option B: Development Build (Recommended)
-
-For biometric authentication to work, you need a development build.
+Biometrics require a dev build - they wont work in Expo Go due to permission limitations.
 
 **iOS:**
 
 ```bash
-npx expo install expo-dev-client
 npx expo prebuild
 cd ios && pod install && cd ..
 npx expo run:ios --device
@@ -52,7 +47,6 @@ npx expo run:ios --device
 **Android:**
 
 ```bash
-npx expo install expo-dev-client
 npx expo prebuild
 npx expo run:android --device
 ```
@@ -63,71 +57,205 @@ Then start the dev server:
 npx expo start --dev-client
 ```
 
-## Running on iOS Device
+### Quick Start (Expo Go)
 
-1. Connect your iPhone via USB
-2. Run `npx expo run:ios --device`
-3. Select your device from the list
-4. The app will install and launch
+For UI development without biometrics:
 
-## Running on Android Device
+```bash
+npx expo start
+```
 
-1. Enable USB debugging on your Android device
-2. Connect your device via USB
-3. Run `npx expo run:android --device`
-4. Select your device from the list
-5. The app will install and launch
-
-## Biometric Authentication
-
-Biometrics require a **development build** on a **physical device**.
-
-### Why Expo Go doesn't work
-
-- Expo Go app doesn't have biometric permissions
-- Your app runs inside Expo Go, inheriting its permission limitations
-- Development builds create your own app with proper permissions
-
-### iOS Simulator
-
-If using iOS Simulator:
-
-1. Go to Features > Face ID > Enrolled
-2. When prompted, go to Features > Face ID > Matching Face
-
-### Android Emulator
-
-If using Android Emulator:
-
-1. Go to Extended Controls (three dots)
-2. Go to Fingerprint
-3. Touch the sensor to simulate fingerprint
+Note: Biometric auth will fail in Expo Go. The app will automatically fall back to PIN entry (default: `123456`).
 
 ## Project Structure
 
 ```
 src/
-├── components/ui/     # Reusable UI components
-├── features/          # Feature screens
-│   ├── home/          # Home dashboard
-│   ├── transfer/      # Transfer hub
-│   ├── amount/        # Amount entry
-│   ├── review/        # Transfer review
-│   ├── biometric/     # Biometric auth
-│   ├── processing/    # Transfer processing
-│   ├── success/       # Success screen
-│   └── contacts/      # Contact picker
-├── navigation/        # React Navigation setup
-├── stores/            # Zustand state stores
-├── services/          # API & mock services
-└── theme/             # Design tokens
+├── components/ui/       # Reusable UI components (Button, Text, Avatar, etc.)
+├── features/            # Feature-based screen modules
+│   ├── home/            # Dashboard with balance, quick actions
+│   ├── transfer/        # Transfer hub (recipient selection)
+│   ├── bank-selection/  # Bank picker for inter-bank transfers
+│   ├── recipient/       # Manual account entry
+│   ├── contacts/        # DuitNow contact picker
+│   ├── amount/          # Amount entry with limit validation
+│   ├── review/          # Transfer confirmation
+│   ├── biometric/       # Auth screen (biometric + PIN fallback)
+│   ├── processing/      # Transaction processing animation
+│   ├── success/         # Success screen with receipt sharing
+│   ├── error/           # Error handling and retry
+│   ├── history/         # Transaction history list
+│   └── settings/        # App settings and limits display
+├── navigation/          # React Navigation config
+├── stores/              # Zustand stores (auth, account, transfer)
+├── services/
+│   ├── api/             # API client setup (ready for real backend)
+│   └── mocks/           # Mock API with realistic delays
+├── hooks/               # Custom React hooks
+├── utils/               # Helper functions (currency, validation, etc.)
+├── theme/               # Design tokens (colors, typography, spacing)
+├── types/               # TypeScript interfaces and types
+└── config/              # App configuration and feature flags
 ```
 
-## Tech Stack
+## Architecture Decisions
 
-- React Native + Expo
-- TypeScript
-- React Navigation
-- Zustand (state management)
-- expo-local-authentication (biometrics)
-- expo-contacts (contact picker)
+### Feature-Based Structure
+
+Each feature is self-contained with its own screen components. Shared UI lives in `components/ui/`. This keeps features isolated and makes it easy to find related code.
+
+### Mock-First Development
+
+The app runs entirely on mock data via `services/mocks/`. The mock API simulates network delays and can return different account states for testing. To swap to a real backend, just update the imports in the stores.
+
+### Transfer Validation
+
+All transfer validation logic lives in `utils/validateTransfer.ts` - single source of truth used by both the mock API and UI. This prevents validation drift between frontend and backend.
+
+Validation checks:
+
+- Sufficient balance (hard block)
+- Per-transaction limit (hard block)
+- Daily limit remaining (hard block, with 80% warning)
+- Monthly limit remaining (hard block, with 80% warning)
+
+### Biometric Auth Flow
+
+The BiometricAuthScreen handles multiple auth scenarios:
+
+1. Primary biometric (Face ID / Touch ID / Fingerprint)
+2. Fallback to 6-digit PIN after biometric failure
+3. Retry mechanisms with attempt counting
+4. Device biometric not available gracefully falls back to PIN
+
+The PIN is configurable in `src/config/app.ts` (default: `123456`).
+
+### State Management
+
+Using Zustand for its simplicity. Three stores:
+
+- `authStore` - biometric enrollment status
+- `accountStore` - balance, accounts, transfer limits
+- `transferStore` - current transfer in progress
+
+Stores are intentionally simple - no complex selectors or middleware.
+
+### Design Token System
+
+All visual constants are centralized:
+
+- `theme/colors.ts` - semantic color palette
+- `theme/typography.ts` - font sizes and weights
+- `theme/spacing.ts` - consistent spacing scale
+- `theme/componentSizes.ts` - icon sizes, touch targets, etc.
+
+This makes global design changes easy and keeps the UI consistent.
+
+## Testing
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+```
+
+Tests cover:
+
+- Transfer validation logic
+- Currency formatting
+- Mock API behavior
+
+## Linting & Formatting
+
+```bash
+# Lint check
+npm run lint
+
+# Auto-fix lint issues
+npm run lint:fix
+
+# Format code
+npm run format
+
+# Type check
+npm run type-check
+```
+
+Pre-commit hooks run lint and prettier automatically via husky + lint-staged.
+
+## Configuration
+
+App settings are in `src/config/app.ts`:
+
+```typescript
+{
+  loadingDelay: 800,        // Simulated API delay (ms)
+  pinCode: '123456',        // Fallback PIN
+  transferLimits: {
+    daily: { limit: 10000, used: 2000 },
+    monthly: { limit: 20000, used: 15000 },
+    perTransaction: 6000,
+  },
+  features: {
+    enableHaptics: true,
+    enableBiometrics: true,
+    enableOfflineMode: true,
+  },
+}
+```
+
+Changing these values affects the whole app - no rebuild needed for config tweaks.
+
+## Simulating Different Scenarios
+
+**Low balance:** Change `mockBalances.current` in config
+
+**Near daily limit:** Set `transferLimits.daily.used` close to `limit`
+
+**Biometric failure:** Use simulator with no Face ID enrolled, or deny permission
+
+**Offline mode:** Toggle airplane mode - the app shows an offline banner
+
+## Known Limitations
+
+- TransactionDetails screen is a placeholder (not implemented yet)
+- No real API integration - mock only
+- No push notifications
+- Receipt sharing uses native share sheet, no custom templates
+- Tests exclude type-checking (tsconfig excludes test dirs)
+
+## Troubleshooting
+
+**Biometrics not working in Expo Go:**
+This is expected. Use `npx expo run:ios` or `npx expo run:android` with a dev client.
+
+**iOS Simulator biometrics:**
+Go to Features > Face ID > Enrolled, then Features > Face ID > Matching Face when prompted.
+
+**Android Emulator fingerprint:**
+Use Extended Controls > Fingerprint > Touch Sensor.
+
+**Pod install fails:**
+Delete `ios/Pods` and `ios/Podfile.lock`, then run `pod install` again.
+
+## Scripts Reference
+
+| Command              | Description                    |
+| -------------------- | ------------------------------ |
+| `npm start`          | Start Expo dev server          |
+| `npm run ios`        | Run on iOS device/simulator    |
+| `npm run android`    | Run on Android device/emulator |
+| `npm test`           | Run Jest tests                 |
+| `npm run lint`       | ESLint check                   |
+| `npm run type-check` | TypeScript check               |
+| `npm run format`     | Prettier format                |
+
+---
+
+Last updated: Feb 1, 2026
+Author : Arshad

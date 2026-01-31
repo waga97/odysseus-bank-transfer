@@ -94,5 +94,8 @@ module.exports = {
     'metro.config.js',
     'jest.config.js',
     '*.d.ts',
+    '**/__tests__/**',
+    '**/*.test.ts',
+    '**/*.test.tsx',
   ],
 };
