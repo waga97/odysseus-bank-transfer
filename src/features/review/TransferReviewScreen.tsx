@@ -4,15 +4,16 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  ScrollView,
-  StatusBar,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, Avatar, Icon, Button, Divider } from '@components/ui';
+import {
+  Text,
+  Avatar,
+  Icon,
+  Button,
+  Divider,
+  ScreenHeader,
+} from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
@@ -63,22 +64,7 @@ export function TransferReviewScreen({ navigation, route }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.backButton,
-            pressed && styles.backButtonPressed,
-          ]}
-          onPress={handleBack}
-        >
-          <Icon name="arrow-left" size={24} color={colors.text.primary} />
-        </Pressable>
-        <Text variant="titleMedium" color="primary" style={styles.headerTitle}>
-          Review Transfer
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Review Transfer" onBack={handleBack} />
 
       <ScrollView
         style={styles.scrollView}
@@ -230,29 +216,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonPressed: {
-    backgroundColor: colors.background.tertiary,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  headerSpacer: {
-    width: 40,
   },
   scrollView: {
     flex: 1,

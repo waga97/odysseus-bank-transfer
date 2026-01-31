@@ -9,6 +9,7 @@ import { Text, Icon } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
+import { fontSize } from '@theme/typography';
 import { useAccounts, useBalanceVisibility } from '@stores/accountStore';
 import { formatCurrency } from '@utils/currency';
 import type { Account } from '@types';
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing[4],
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: fontSize.sectionTitle,
     fontWeight: '600',
     color: colors.text.primary,
   },

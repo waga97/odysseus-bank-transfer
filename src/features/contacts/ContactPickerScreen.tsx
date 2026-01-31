@@ -15,10 +15,20 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Contacts from 'expo-contacts';
-import { Text, Icon, Input, Avatar, Button, Skeleton } from '@components/ui';
+import {
+  Text,
+  Icon,
+  Input,
+  Avatar,
+  Button,
+  Skeleton,
+  ScreenHeader,
+} from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
+import { fontSize } from '@theme/typography';
+import { componentSizes } from '@theme/componentSizes';
 import type { RootStackScreenProps } from '@navigation/types';
 
 type Props = RootStackScreenProps<'ContactPicker'>;
@@ -217,13 +227,7 @@ export function ContactPickerScreen({ navigation }: Props) {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <StatusBar barStyle="dark-content" />
 
-        <View style={styles.header}>
-          <Pressable style={styles.backButton} onPress={handleBack}>
-            <Icon name="arrow-left" size={22} color={colors.text.primary} />
-          </Pressable>
-          <Text style={styles.headerTitle}>Select Contact</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader title="Select Contact" onBack={handleBack} />
 
         <View style={styles.permissionContainer}>
           <View style={styles.permissionIconContainer}>
@@ -251,16 +255,10 @@ export function ContactPickerScreen({ navigation }: Props) {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <StatusBar barStyle="dark-content" />
 
-        <View style={styles.header}>
-          <Pressable
-            style={styles.backButton}
-            onPress={handleCancelPhoneSelection}
-          >
-            <Icon name="arrow-left" size={22} color={colors.text.primary} />
-          </Pressable>
-          <Text style={styles.headerTitle}>Select Number</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader
+          title="Select Number"
+          onBack={handleCancelPhoneSelection}
+        />
 
         <View style={styles.selectedContactHeader}>
           <Avatar name={selectedContact.name} size="large" />
@@ -307,13 +305,7 @@ export function ContactPickerScreen({ navigation }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
 
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={handleBack}>
-          <Icon name="arrow-left" size={22} color={colors.text.primary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Select Contact</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Select Contact" onBack={handleBack} />
 
       <View style={styles.searchContainer}>
         <Input
@@ -366,30 +358,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.surface.secondary,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  headerSpacer: {
-    width: 40,
   },
   searchContainer: {
     paddingHorizontal: spacing[4],
@@ -467,8 +435,8 @@ const styles = StyleSheet.create({
     gap: spacing[4],
   },
   permissionIconContainer: {
-    width: 100,
-    height: 100,
+    width: componentSizes.icon.xlarge,
+    height: componentSizes.icon.xlarge,
     borderRadius: borderRadius.full,
     backgroundColor: colors.background.tertiary,
     alignItems: 'center',
@@ -476,7 +444,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing[2],
   },
   permissionTitle: {
-    fontSize: 18,
+    fontSize: fontSize.sectionTitle,
     fontWeight: '600',
     color: colors.text.primary,
     textAlign: 'center',
@@ -497,7 +465,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border.primary,
   },
   selectedContactName: {
-    fontSize: 18,
+    fontSize: fontSize.sectionTitle,
     fontWeight: '600',
     color: colors.text.primary,
   },

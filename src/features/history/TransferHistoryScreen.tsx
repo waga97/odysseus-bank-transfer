@@ -14,10 +14,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, Icon, Avatar } from '@components/ui';
+import { Text, Icon, Avatar, ScreenHeader } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
+import { fontSize } from '@theme/typography';
 import { formatCurrency } from '@utils/currency';
 import type { RootStackScreenProps } from '@navigation/types';
 import type { Transaction } from '@types';
@@ -378,20 +379,7 @@ export function TransferHistoryScreen({ navigation }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.backButton,
-            pressed && styles.backButtonPressed,
-          ]}
-          onPress={handleBack}
-        >
-          <Icon name="arrow-left" size={24} color={colors.text.primary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Transfer History</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Transfer History" onBack={handleBack} />
 
       {/* Transaction List or Skeleton */}
       {isLoading ? (
@@ -425,32 +413,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonPressed: {
-    backgroundColor: colors.background.tertiary,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  headerSpacer: {
-    width: 40,
   },
   listContent: {
     paddingHorizontal: spacing[4],
@@ -556,7 +518,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing[2],
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: fontSize.sectionTitle,
     fontWeight: '600',
     color: colors.text.primary,
   },

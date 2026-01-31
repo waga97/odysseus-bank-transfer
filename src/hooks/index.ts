@@ -4,3 +4,5 @@
  */
 
 export { useNetworkStatus } from './useNetworkStatus';
+export { useShakeAnimation } from './useShakeAnimation';
+export { usePulseAnimation } from './usePulseAnimation';

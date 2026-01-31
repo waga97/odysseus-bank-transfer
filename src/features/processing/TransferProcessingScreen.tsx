@@ -10,6 +10,7 @@ import { Text, Icon } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
+import { componentSizes } from '@theme/componentSizes';
 import type { RootStackScreenProps } from '@navigation/types';
 import { formatCurrency } from '@utils/currency';
 
@@ -237,8 +238,8 @@ const styles = StyleSheet.create({
     marginVertical: spacing[1],
   },
   loadingContainer: {
-    width: 100,
-    height: 100,
+    width: componentSizes.icon.xlarge,
+    height: componentSizes.icon.xlarge,
     borderRadius: borderRadius.full,
     backgroundColor: colors.primary[50],
     alignItems: 'center',

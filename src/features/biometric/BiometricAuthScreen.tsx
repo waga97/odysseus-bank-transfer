@@ -1,6 +1,6 @@
 /**
  * Odysseus Bank - Biometric Authentication Screen
- * Face ID / Fingerprint / PIN fallback for transaction authorization - warm theme
+ * Face ID / Fingerprint / PIN fallback for transaction authorization
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -14,7 +14,14 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Text, Icon, Button } from '@components/ui';
+import {
+  Text,
+  Icon,
+  Button,
+  ScreenHeader,
+  PinKeypad,
+  PinDots,
+} from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
@@ -22,6 +29,8 @@ import type { RootStackScreenProps } from '@navigation/types';
 import { formatCurrency } from '@utils/currency';
 import { appConfig } from '@config/app';
 import { lightHaptic, errorHaptic, successHaptic } from '@utils/haptics';
+import { useShakeAnimation } from '@hooks/useShakeAnimation';
+import { usePulseAnimation } from '@hooks/usePulseAnimation';
 
 type Props = RootStackScreenProps<'BiometricAuth'>;
 
@@ -38,9 +47,11 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
 
-  // Animation values
-  const pulseAnim = useState(new Animated.Value(1))[0];
-  const shakeAnim = useState(new Animated.Value(0))[0];
+  // Animation hooks
+  const { shakeAnim, shake } = useShakeAnimation();
+  const pulseAnim = usePulseAnimation({
+    active: authState === 'authenticating',
+  });
 
   // Check biometric availability on mount
   useEffect(() => {
@@ -54,29 +65,6 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [biometricType]);
-
-  // Pulse animation for the icon
-  useEffect(() => {
-    if (authState === 'authenticating') {
-      const pulse = Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      pulse.start();
-      return () => pulse.stop();
-    }
-    return undefined;
-  }, [authState, pulseAnim]);
 
   const checkBiometricType = async () => {
     try {
@@ -116,6 +104,15 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
     }
   };
 
+  const navigateToProcessing = useCallback(() => {
+    navigation.replace('TransferProcessing', {
+      transferId: `txn-${Date.now()}`,
+      recipient,
+      amount,
+      note,
+    });
+  }, [navigation, recipient, amount, note]);
+
   const authenticate = async () => {
     setAuthState('authenticating');
 
@@ -129,55 +126,18 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
 
       if (result.success) {
         setAuthState('success');
-        setTimeout(() => {
-          navigation.replace('TransferProcessing', {
-            transferId: `txn-${Date.now()}`,
-            recipient,
-            amount,
-            note,
-          });
-        }, 500);
+        setTimeout(navigateToProcessing, 500);
       } else if (result.error === 'user_cancel') {
         setAuthState('cancelled');
       } else {
         setAuthState('failed');
-        triggerShake();
+        shake();
       }
     } catch {
       setAuthState('failed');
       setShowPinFallback(true);
     }
   };
-
-  const triggerShake = useCallback(() => {
-    Animated.sequence([
-      Animated.timing(shakeAnim, {
-        toValue: 10,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnim, {
-        toValue: -10,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnim, {
-        toValue: 10,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnim, {
-        toValue: -10,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnim, {
-        toValue: 0,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [shakeAnim]);
 
   const handleBack = useCallback(() => {
     navigation.goBack();
@@ -189,9 +149,8 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePinPress = useCallback(
+  const handlePinDigit = useCallback(
     (digit: string) => {
-      // Clear error state when user starts typing again
       if (pinError) {
         setPinError(false);
       }
@@ -203,33 +162,21 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
 
         if (newPin.length === 6) {
           setTimeout(() => {
-            // Validate PIN against centralized config
             if (newPin === appConfig.pinCode) {
               void successHaptic();
               setAuthState('success');
-              setTimeout(() => {
-                navigation.replace('TransferProcessing', {
-                  transferId: `txn-${Date.now()}`,
-                  recipient,
-                  amount,
-                  note,
-                });
-              }, 500);
+              setTimeout(navigateToProcessing, 500);
             } else {
-              // Wrong PIN - show error and allow retry
               void errorHaptic();
               setPinError(true);
-              triggerShake();
-              // Clear PIN after a short delay so user can retry
-              setTimeout(() => {
-                setPin('');
-              }, 300);
+              shake();
+              setTimeout(() => setPin(''), 300);
             }
           }, 300);
         }
       }
     },
-    [pin, pinError, navigation, recipient, amount, note, triggerShake]
+    [pin, pinError, shake, navigateToProcessing]
   );
 
   const handlePinDelete = useCallback(() => {
@@ -243,12 +190,8 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getBiometricIcon = () => {
-    if (biometricType === 'faceid') {
-      return 'eye';
-    }
-    return 'shield';
-  };
+  const getBiometricIcon = () =>
+    biometricType === 'faceid' ? 'eye' : 'shield';
 
   const getBiometricLabel = () => {
     if (biometricType === 'faceid') {
@@ -279,15 +222,7 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <StatusBar barStyle="dark-content" />
-
-        {/* Header */}
-        <View style={styles.header}>
-          <Pressable style={styles.backButton} onPress={handleBack}>
-            <Icon name="arrow-left" size={22} color={colors.text.primary} />
-          </Pressable>
-          <Text style={styles.headerTitle}>Enter PIN</Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader title="Enter PIN" onBack={handleBack} />
 
         <View style={styles.pinContent}>
           {/* Amount Display */}
@@ -298,23 +233,13 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
           </View>
 
           {/* PIN Dots */}
-          <Animated.View
-            style={[
-              styles.pinDotsContainer,
-              { transform: [{ translateX: shakeAnim }] },
-            ]}
-          >
-            {[0, 1, 2, 3, 4, 5].map((index) => (
-              <View
-                key={index}
-                style={[
-                  styles.pinDot,
-                  pin.length > index && styles.pinDotFilled,
-                  pinError && styles.pinDotError,
-                ]}
-              />
-            ))}
-          </Animated.View>
+          <View style={styles.pinDotsWrapper}>
+            <PinDots
+              filledCount={pin.length}
+              error={pinError}
+              shakeAnimation={shakeAnim}
+            />
+          </View>
 
           {/* Error Message */}
           {pinError && (
@@ -341,51 +266,11 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
           )}
 
           {/* PIN Keypad */}
-          <View style={styles.pinKeypad}>
-            {[
-              ['1', '2', '3'],
-              ['4', '5', '6'],
-              ['7', '8', '9'],
-              ['', '0', 'delete'],
-            ].map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.pinKeypadRow}>
-                {row.map((key) => {
-                  if (key === '') {
-                    return <View key="empty" style={styles.pinKey} />;
-                  }
-                  if (key === 'delete') {
-                    return (
-                      <Pressable
-                        key="delete"
-                        style={({ pressed }) => [
-                          styles.pinKey,
-                          pressed && styles.pinKeyPressed,
-                        ]}
-                        onPress={handlePinDelete}
-                      >
-                        <Icon
-                          name="delete"
-                          size={24}
-                          color={colors.text.primary}
-                        />
-                      </Pressable>
-                    );
-                  }
-                  return (
-                    <Pressable
-                      key={key}
-                      style={({ pressed }) => [
-                        styles.pinKey,
-                        pressed && styles.pinKeyPressed,
-                      ]}
-                      onPress={() => handlePinPress(key)}
-                    >
-                      <Text style={styles.pinKeyText}>{key}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            ))}
+          <View style={styles.keypadWrapper}>
+            <PinKeypad
+              onDigitPress={handlePinDigit}
+              onDeletePress={handlePinDelete}
+            />
           </View>
         </View>
       </View>
@@ -396,15 +281,7 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={handleBack}>
-          <Icon name="arrow-left" size={22} color={colors.text.primary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Authorize Transfer</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Authorize Transfer" onBack={handleBack} />
 
       <View style={styles.content}>
         {/* Amount Display */}
@@ -418,9 +295,7 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
         <Animated.View
           style={[
             styles.biometricIconContainer,
-            {
-              transform: [{ scale: pulseAnim }, { translateX: shakeAnim }],
-            },
+            { transform: [{ scale: pulseAnim }, { translateX: shakeAnim }] },
             authState === 'success' && styles.biometricIconSuccess,
             authState === 'failed' && styles.biometricIconFailed,
           ]}
@@ -485,30 +360,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.surface.secondary,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text.primary,
-    textAlign: 'center',
-  },
-  headerSpacer: {
-    width: 40,
   },
   content: {
     flex: 1,
@@ -588,27 +439,9 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     marginVertical: spacing[1],
   },
-  pinDotsContainer: {
-    flexDirection: 'row',
-    gap: spacing[4],
+  pinDotsWrapper: {
     marginTop: spacing[8],
     marginBottom: spacing[4],
-  },
-  pinDot: {
-    width: 16,
-    height: 16,
-    borderRadius: borderRadius.full,
-    borderWidth: 2,
-    borderColor: colors.border.primary,
-    backgroundColor: colors.background.primary,
-  },
-  pinDotFilled: {
-    backgroundColor: palette.accent.main,
-    borderColor: palette.accent.main,
-  },
-  pinDotError: {
-    borderColor: palette.error.main,
-    backgroundColor: palette.error.light,
   },
   pinErrorText: {
     fontSize: 14,
@@ -628,33 +461,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: palette.accent.main,
   },
-  pinKeypad: {
+  keypadWrapper: {
     marginTop: 'auto',
     marginBottom: spacing[4],
-    width: '100%',
-    maxWidth: 300,
-  },
-  pinKeypadRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing[3],
-  },
-  pinKey: {
-    width: 80,
-    height: 80,
-    borderRadius: borderRadius.full,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface.secondary,
-  },
-  pinKeyPressed: {
-    backgroundColor: colors.background.tertiary,
-  },
-  pinKeyText: {
-    fontSize: 28,
-    fontWeight: '500',
-    color: colors.text.primary,
-    lineHeight: 34,
   },
 });
 

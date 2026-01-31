@@ -10,6 +10,7 @@ import { Text, Icon, Button } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
+import { componentSizes } from '@theme/componentSizes';
 import { errorHaptic } from '@utils/haptics';
 import type { RootStackScreenProps } from '@navigation/types';
 
@@ -274,8 +275,8 @@ const styles = StyleSheet.create({
     gap: spacing[4],
   },
   iconContainer: {
-    width: 100,
-    height: 100,
+    width: componentSizes.icon.xlarge,
+    height: componentSizes.icon.xlarge,
     borderRadius: borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',

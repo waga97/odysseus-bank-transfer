@@ -8,13 +8,19 @@ import type { TextInput } from 'react-native';
 import {
   View,
   StyleSheet,
-  Pressable,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, Input, Button, Icon, Avatar } from '@components/ui';
+import {
+  Text,
+  Input,
+  Button,
+  Icon,
+  Avatar,
+  ScreenHeader,
+} from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
@@ -113,26 +119,7 @@ export function RecipientDetailsScreen({ navigation, route }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={[styles.inner, { paddingTop: insets.top }]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.backButton,
-              pressed && styles.backButtonPressed,
-            ]}
-            onPress={handleBack}
-          >
-            <Icon name="arrow-left" size={24} color={colors.text.primary} />
-          </Pressable>
-          <Text
-            variant="titleMedium"
-            color="primary"
-            style={styles.headerTitle}
-          >
-            Recipient Details
-          </Text>
-          <View style={styles.headerSpacer} />
-        </View>
+        <ScreenHeader title="Recipient Details" onBack={handleBack} />
 
         <ScrollView
           style={styles.scrollView}
@@ -204,31 +191,6 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonPressed: {
-    backgroundColor: colors.background.tertiary,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  headerSpacer: {
-    width: 40,
   },
   scrollView: {
     flex: 1,

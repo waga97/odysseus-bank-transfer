@@ -10,6 +10,8 @@ import { Text, Icon } from '@components/ui';
 import { colors } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
+import { fontSize } from '@theme/typography';
+import { componentSizes } from '@theme/componentSizes';
 
 interface TransferHeaderProps {
   title: string;
@@ -58,8 +60,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.primary,
   },
   backButton: {
-    width: 40,
-    height: 40,
+    width: componentSizes.header.backButton,
+    height: componentSizes.header.backButton,
     borderRadius: borderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
@@ -73,12 +75,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleText: {
-    fontSize: 18,
+    fontSize: fontSize.sectionTitle,
     fontWeight: '600',
     color: colors.text.primary,
   },
   rightContainer: {
-    width: 40,
+    width: componentSizes.header.backButton,
   },
 });
 

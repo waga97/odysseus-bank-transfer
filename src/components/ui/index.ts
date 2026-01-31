@@ -22,3 +22,6 @@ export {
 } from './Skeleton';
 export { OfflineBanner } from './OfflineBanner';
 export { LimitWarning, TransferLimitWarnings } from './LimitWarning';
+export { ScreenHeader } from './ScreenHeader';
+export { PinKeypad } from './PinKeypad';
+export { PinDots } from './PinDots';

@@ -46,6 +46,8 @@ export const fontSize = {
   '2xl': 32,
   '3xl': 40,
   '4xl': 48,
+  // Semantic aliases
+  sectionTitle: 18,
 } as const;
 
 // Line heights

@@ -31,6 +31,7 @@ import {
   type DurationKey,
   type EasingKey,
 } from './animations';
+import { componentSizes, type ComponentSizes } from './componentSizes';
 
 /**
  * Complete theme object
@@ -65,6 +66,7 @@ export const theme = {
     easing,
     config: animationConfig,
   },
+  componentSizes,
 } as const;
 
 /**
@@ -106,6 +108,9 @@ export {
   animationConfig,
   type DurationKey,
   type EasingKey,
+  // Component Sizes
+  componentSizes,
+  type ComponentSizes,
 };
 
 export default theme;
