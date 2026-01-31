@@ -115,10 +115,9 @@ export interface TransferValidationResult {
     field: string;
     message: string;
   }[];
-  warnings?: {
-    type: 'daily_limit_warning' | 'duplicate_transfer';
+  warnings: {
+    type: 'daily_limit_warning' | 'monthly_limit_warning';
     message: string;
-    details?: Record<string, unknown>;
   }[];
 }
 

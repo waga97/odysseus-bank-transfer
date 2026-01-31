@@ -15,6 +15,7 @@ import {
 } from './data';
 import type { Transaction, TransferRequest } from '@types';
 import { appConfig } from '@config/app';
+import { validateTransfer } from '@utils/validateTransfer';
 
 // In-memory state for mutations
 let currentBalance = mockAccounts[0]?.balance ?? 0;
@@ -92,59 +93,30 @@ export const mockApi = {
     return mockBanks;
   },
 
-  // Transfer validation
+  // Transfer validation - uses shared validation function (DRY)
   async validateTransfer(request: TransferRequest) {
     await apiDelay();
 
-    const errors: { field: string; message: string }[] = [];
-    const warnings: {
-      type: 'daily_limit_warning' | 'duplicate_transfer';
-      message: string;
-      details?: Record<string, unknown>;
-    }[] = [];
-
-    // Check balance
-    if (request.amount > currentBalance) {
-      errors.push({
-        field: 'amount',
-        message: `Insufficient funds. Available balance: RM ${currentBalance.toFixed(2)}`,
-      });
-    }
-
-    // Check daily limit
-    const remainingLimit = mockTransferLimits.daily.limit - dailyUsed;
-    if (request.amount > remainingLimit) {
-      errors.push({
-        field: 'amount',
-        message: `Daily limit exceeded. Remaining limit: RM ${remainingLimit.toFixed(2)}`,
-      });
-    }
-
-    // Check per-transaction limit
-    if (request.amount > mockTransferLimits.perTransaction) {
-      errors.push({
-        field: 'amount',
-        message: `Amount exceeds per-transaction limit of RM ${mockTransferLimits.perTransaction.toFixed(2)}`,
-      });
-    }
-
-    // Warning for approaching daily limit
-    const newDailyUsed = dailyUsed + request.amount;
-    if (
-      newDailyUsed >= mockTransferLimits.daily.limit * 0.8 &&
-      errors.length === 0
-    ) {
-      warnings.push({
-        type: 'daily_limit_warning' as const,
-        message: `You're approaching your daily transfer limit.`,
-      });
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors,
-      warnings,
+    // Build current limits state
+    const limits = {
+      daily: {
+        limit: mockTransferLimits.daily.limit,
+        used: dailyUsed,
+        remaining: mockTransferLimits.daily.limit - dailyUsed,
+      },
+      monthly: {
+        limit: mockTransferLimits.monthly.limit,
+        used: mockTransferLimits.monthly.used,
+        remaining: mockTransferLimits.monthly.remaining,
+      },
+      perTransaction: mockTransferLimits.perTransaction,
     };
+
+    return validateTransfer({
+      amount: request.amount,
+      balance: currentBalance,
+      limits,
+    });
   },
 
   // Execute transfer

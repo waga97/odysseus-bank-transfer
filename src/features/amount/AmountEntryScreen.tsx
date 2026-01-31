@@ -13,6 +13,7 @@ import {
   Input,
   Button,
   TransferLimitWarnings,
+  ScreenHeader,
 } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
@@ -20,8 +21,12 @@ import { borderRadius } from '@theme/borderRadius';
 import type { RootStackScreenProps } from '@navigation/types';
 import { useAccountStore } from '@stores/accountStore';
 import { useTransferStore } from '@stores/transferStore';
-import { formatCurrency, formatInputDisplay } from '@utils/currency';
+import { formatInputDisplay } from '@utils/currency';
 import { lightHaptic } from '@utils/haptics';
+import {
+  validateTransfer,
+  getFirstErrorMessage,
+} from '@utils/validateTransfer';
 
 type Props = RootStackScreenProps<'AmountEntry'>;
 
@@ -50,38 +55,22 @@ export function AmountEntryScreen({ navigation, route }: Props) {
     return isNaN(parsed) ? 0 : parsed;
   }, [amount]);
 
-  // Validation
+  // Validation - uses shared validation function (DRY)
   const validation = useMemo(() => {
-    if (numericAmount <= 0) {
+    if (!limits || numericAmount <= 0) {
       return { valid: false, message: null };
     }
 
-    const balance = defaultAccount?.balance ?? 0;
-    const dailyRemaining = limits?.daily.remaining ?? 0;
-    const perTransaction = limits?.perTransaction ?? 5000;
+    const result = validateTransfer({
+      amount: numericAmount,
+      balance: defaultAccount?.balance ?? 0,
+      limits,
+    });
 
-    if (numericAmount > balance) {
-      return {
-        valid: false,
-        message: `Insufficient balance. Available: ${formatCurrency(balance)}`,
-      };
-    }
-
-    if (numericAmount > dailyRemaining) {
-      return {
-        valid: false,
-        message: `Exceeds daily limit. Remaining: ${formatCurrency(dailyRemaining)}`,
-      };
-    }
-
-    if (numericAmount > perTransaction) {
-      return {
-        valid: false,
-        message: `Max per transaction: ${formatCurrency(perTransaction)}`,
-      };
-    }
-
-    return { valid: true, message: null };
+    return {
+      valid: result.isValid,
+      message: getFirstErrorMessage(result),
+    };
   }, [numericAmount, defaultAccount, limits]);
 
   // Handle numpad press
@@ -161,22 +150,7 @@ export function AmountEntryScreen({ navigation, route }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.backButton,
-            pressed && styles.backButtonPressed,
-          ]}
-          onPress={handleBack}
-        >
-          <Icon name="arrow-left" size={24} color={colors.text.primary} />
-        </Pressable>
-        <Text variant="titleMedium" color="primary" style={styles.headerTitle}>
-          Enter Amount
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ScreenHeader title="Enter Amount" onBack={handleBack} />
 
       {/* Recipient Info */}
       <View style={styles.recipientCard}>
@@ -325,29 +299,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.full,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonPressed: {
-    backgroundColor: colors.background.tertiary,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-  },
-  headerSpacer: {
-    width: 40,
   },
   recipientCard: {
     flexDirection: 'row',
