@@ -148,12 +148,9 @@ export function HomeScreen() {
 
         {/* Recent Activity */}
         <RecentActivity onSeeAllPress={handleSeeAllTransactions} />
-
-        {/* Bottom Spacing for Nav */}
-        <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - now part of layout flow, not absolute */}
       <BottomNav activeTab="home" onTabPress={handleTabPress} />
     </View>
   );
@@ -168,13 +165,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: spacing[4],
+    flexGrow: 1,
+    paddingBottom: spacing[6], // Add spacing before bottom nav
   },
   bannerSection: {
     marginTop: spacing[6],
-  },
-  bottomSpacer: {
-    height: 120,
   },
 });
 
