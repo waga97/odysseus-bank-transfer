@@ -20,6 +20,7 @@ import { validateTransfer } from '@utils/validateTransfer';
 // In-memory state for mutations
 let currentBalance = mockAccounts[0]?.balance ?? 0;
 let dailyUsed = mockTransferLimits.daily.used;
+let monthlyUsed = mockTransferLimits.monthly.used;
 const transactions = [...mockTransactions];
 
 // Simulate network delay using centralized config
@@ -53,6 +54,11 @@ export const mockApi = {
         ...mockTransferLimits.daily,
         used: dailyUsed,
         remaining: mockTransferLimits.daily.limit - dailyUsed,
+      },
+      monthly: {
+        ...mockTransferLimits.monthly,
+        used: monthlyUsed,
+        remaining: mockTransferLimits.monthly.limit - monthlyUsed,
       },
     };
   },
@@ -106,8 +112,8 @@ export const mockApi = {
       },
       monthly: {
         limit: mockTransferLimits.monthly.limit,
-        used: mockTransferLimits.monthly.used,
-        remaining: mockTransferLimits.monthly.remaining,
+        used: monthlyUsed,
+        remaining: mockTransferLimits.monthly.limit - monthlyUsed,
       },
       perTransaction: mockTransferLimits.perTransaction,
     };
@@ -124,6 +130,16 @@ export const mockApi = {
     request: TransferRequest & { recipientName?: string; bankName?: string }
   ): Promise<Transaction> {
     await delay(1500); // Longer delay for transfer
+
+    // Test account number for invalid account error
+    // 111122223333 = invalid account (can't trigger naturally)
+    // Other errors can be triggered naturally:
+    // - Insufficient funds: transfer more than balance
+    // - Daily limit: transfer until limit reached
+    // - Network error: use airplane mode
+    if (request.recipientAccountNumber === '111122223333') {
+      throw new Error('INVALID_ACCOUNT');
+    }
 
     // Simulate random network failure (5% chance)
     if (Math.random() < 0.05) {
@@ -143,6 +159,7 @@ export const mockApi = {
     // Execute transfer
     currentBalance -= request.amount;
     dailyUsed += request.amount;
+    monthlyUsed += request.amount;
 
     const newTransaction: Transaction = {
       id: generateTransactionId(),
@@ -203,6 +220,7 @@ export const mockApi = {
   reset() {
     currentBalance = mockAccounts[0]?.balance ?? 0;
     dailyUsed = mockTransferLimits.daily.used;
+    monthlyUsed = mockTransferLimits.monthly.used;
     transactions.length = 0;
     transactions.push(...mockTransactions);
   },

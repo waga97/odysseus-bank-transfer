@@ -23,7 +23,7 @@ import { commonStyles, iconContainerContentColor } from '@theme/commonStyles';
 import { formatCurrency } from '@utils/currency';
 import { lightHaptic } from '@utils/haptics';
 import { useAccountStore } from '@stores/accountStore';
-import { useUser } from '@stores/authStore';
+import { useUser, useAuthStore } from '@stores/authStore';
 import { appConfig } from '@config/app';
 import type { RootStackScreenProps } from '@navigation/types';
 
@@ -86,7 +86,13 @@ export function SettingsScreen({ navigation }: Props) {
   const { transferLimits } = useAccountStore();
   const user = useUser();
 
-  const [biometricEnabled, setBiometricEnabled] = useState(true);
+  // Get biometric state from authStore
+  const biometricAuthEnabled = useAuthStore(
+    (state) => state.biometricAuthEnabled
+  );
+  const setBiometricAuthEnabledStore = useAuthStore(
+    (state) => state.setBiometricAuthEnabled
+  );
   const [biometricType, setBiometricType] = useState<string>('Biometric');
 
   // Check biometric type
@@ -117,11 +123,13 @@ export function SettingsScreen({ navigation }: Props) {
     navigation.goBack();
   }, [navigation]);
 
-  const handleBiometricToggle = useCallback((value: boolean) => {
-    void lightHaptic();
-    setBiometricEnabled(value);
-    // In real app, persist to secure storage
-  }, []);
+  const handleBiometricToggle = useCallback(
+    (value: boolean) => {
+      void lightHaptic();
+      setBiometricAuthEnabledStore(value);
+    },
+    [setBiometricAuthEnabledStore]
+  );
 
   const handleChangePin = useCallback(() => {
     Alert.alert(
@@ -252,14 +260,14 @@ export function SettingsScreen({ navigation }: Props) {
               showChevron={false}
               rightElement={
                 <Switch
-                  value={biometricEnabled}
+                  value={biometricAuthEnabled}
                   onValueChange={handleBiometricToggle}
                   trackColor={{
                     false: colors.border.primary,
                     true: palette.accent.light,
                   }}
                   thumbColor={
-                    biometricEnabled
+                    biometricAuthEnabled
                       ? palette.accent.main
                       : colors.text.tertiary
                   }

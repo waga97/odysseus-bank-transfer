@@ -162,8 +162,14 @@ export function ContactPickerScreen({ navigation }: Props) {
 
   const handleSelectPhone = useCallback(
     (phone: string) => {
+      // Set selected state for visual feedback
+      setSelectedPhone(phone);
+
+      // Navigate after brief delay to show selection
       if (selectedContact) {
-        navigateToAmount(selectedContact, phone);
+        setTimeout(() => {
+          navigateToAmount(selectedContact, phone);
+        }, 150);
       }
     },
     [selectedContact, navigateToAmount]

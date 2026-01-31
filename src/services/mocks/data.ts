@@ -29,23 +29,24 @@ export const mockUser: User = {
 /**
  * User's bank accounts
  * Balances controlled from appConfig.mockBalances
+ * Current Account is default for transfers
  */
 export const mockAccounts: Account[] = [
   {
     id: 'acc-001',
-    name: 'Savings Account',
-    accountNumber: '1234567890',
-    type: 'savings',
-    balance: appConfig.mockBalances.savings,
+    name: 'Current Account',
+    accountNumber: '0987654321',
+    type: 'current',
+    balance: appConfig.mockBalances.current,
     currency: 'RM',
     isDefault: true,
   },
   {
     id: 'acc-002',
-    name: 'Current Account',
-    accountNumber: '0987654321',
-    type: 'current',
-    balance: appConfig.mockBalances.current,
+    name: 'Savings Account',
+    accountNumber: '1234567890',
+    type: 'savings',
+    balance: appConfig.mockBalances.savings,
     currency: 'RM',
     isDefault: false,
   },

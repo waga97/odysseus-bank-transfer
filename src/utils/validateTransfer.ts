@@ -124,3 +124,32 @@ export function validateTransfer({
 export function getFirstErrorMessage(result: ValidationResult): string | null {
   return result.errors[0]?.message ?? null;
 }
+
+/**
+ * Warning threshold constant - centralized for consistency
+ * Warn when usage will reach this percentage of the limit
+ */
+export const WARNING_THRESHOLD = 0.8;
+
+/**
+ * Check if a transfer amount triggers a warning for a cumulative limit
+ * Used by UI components to show consistent warnings
+ */
+export function shouldWarnForLimit(
+  amount: number,
+  used: number,
+  limit: number
+): boolean {
+  if (amount <= 0) {
+    return false;
+  }
+  const newUsed = used + amount;
+  return newUsed >= limit * WARNING_THRESHOLD;
+}
+
+/**
+ * Check if amount exceeds a limit
+ */
+export function exceedsLimit(amount: number, remaining: number): boolean {
+  return amount > remaining;
+}

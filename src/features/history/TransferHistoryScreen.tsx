@@ -1,6 +1,6 @@
 /**
  * Odysseus Bank - Transfer History Screen
- * List of past transactions with pagination and pull-to-refresh
+ * List of past transactions with pagination (5 per page) and pull-to-refresh
  */
 
 import React, { useCallback, useState, useMemo, useEffect } from 'react';
@@ -22,117 +22,13 @@ import { fontSize } from '@theme/typography';
 import { formatCurrency } from '@utils/currency';
 import type { RootStackScreenProps } from '@navigation/types';
 import type { Transaction } from '@types';
-import { appConfig } from '@config/app';
 import { SkeletonTransactionCard } from '@components/ui';
+import { mockApi } from '@services/mocks';
+import { useAccountStore } from '@stores/accountStore';
 
 type Props = RootStackScreenProps<'TransferHistory'>;
 
-// Mock transaction data
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'txn-001',
-    type: 'transfer',
-    status: 'completed',
-    amount: 250.0,
-    currency: 'MYR',
-    recipient: {
-      id: 'r1',
-      name: 'Sarah Jenkins',
-      accountNumber: '1234567890',
-      bankName: 'Maybank',
-    },
-    sender: { id: 's1', name: 'You', accountNumber: '9876543210' },
-    reference: 'ODS-12345',
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 mins ago
-    completedAt: new Date(Date.now() - 1000 * 60 * 29).toISOString(),
-  },
-  {
-    id: 'txn-002',
-    type: 'transfer',
-    status: 'completed',
-    amount: 1500.0,
-    currency: 'MYR',
-    recipient: {
-      id: 'r2',
-      name: 'Ahmad Rizal',
-      phoneNumber: '+60123456789',
-      bankName: 'CIMB Bank',
-    },
-    sender: { id: 's1', name: 'You', accountNumber: '9876543210' },
-    reference: 'ODS-12344',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), // 3 hours ago
-    completedAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-  },
-  {
-    id: 'txn-003',
-    type: 'transfer',
-    status: 'completed',
-    amount: 89.5,
-    currency: 'MYR',
-    recipient: {
-      id: 'r3',
-      name: 'Lisa Wong',
-      accountNumber: '5678901234',
-      bankName: 'Public Bank',
-    },
-    sender: { id: 's1', name: 'You', accountNumber: '9876543210' },
-    note: 'Lunch payment',
-    reference: 'ODS-12343',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // Yesterday
-    completedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-  },
-  {
-    id: 'txn-004',
-    type: 'transfer',
-    status: 'failed',
-    amount: 500.0,
-    currency: 'MYR',
-    recipient: {
-      id: 'r4',
-      name: 'John Tan',
-      accountNumber: '1122334455',
-      bankName: 'RHB Bank',
-    },
-    sender: { id: 's1', name: 'You', accountNumber: '9876543210' },
-    reference: 'ODS-12342',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-  },
-  {
-    id: 'txn-005',
-    type: 'transfer',
-    status: 'completed',
-    amount: 2000.0,
-    currency: 'MYR',
-    recipient: {
-      id: 'r5',
-      name: 'Mei Ling',
-      phoneNumber: '+60198765432',
-      bankName: 'Hong Leong Bank',
-    },
-    sender: { id: 's1', name: 'You', accountNumber: '9876543210' },
-    note: 'Monthly rent',
-    reference: 'ODS-12341',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days ago
-    completedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
-  },
-  {
-    id: 'txn-006',
-    type: 'transfer',
-    status: 'completed',
-    amount: 350.0,
-    currency: 'MYR',
-    recipient: {
-      id: 'r6',
-      name: 'David Lee',
-      accountNumber: '9988776655',
-      bankName: 'AmBank',
-    },
-    sender: { id: 's1', name: 'You', accountNumber: '9876543210' },
-    reference: 'ODS-12340',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(), // 1 week ago
-    completedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
-  },
-];
+const PAGE_SIZE = 5;
 
 // Group transactions by date
 interface TransactionGroup {
@@ -186,16 +82,46 @@ export function TransferHistoryScreen({ navigation }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [apiTransactions, setApiTransactions] = useState<Transaction[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  // Initial load with skeleton delay
+  // Get transactions from store (includes newly completed transfers)
+  const storeTransactions = useAccountStore((state) => state.transactions);
+
+  // Merge store transactions with API transactions, removing duplicates
+  // Store transactions appear first (newest), then paginated API transactions
+  const transactions = useMemo(() => {
+    const storeIds = new Set(storeTransactions.map((t) => t.id));
+    const uniqueApiTransactions = apiTransactions.filter(
+      (t) => !storeIds.has(t.id)
+    );
+    return [...storeTransactions, ...uniqueApiTransactions];
+  }, [storeTransactions, apiTransactions]);
+
+  // Initial load - fetch first page
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setTransactions(MOCK_TRANSACTIONS);
-      setIsLoading(false);
-    }, appConfig.loadingDelay);
+    let isMounted = true;
 
-    return () => clearTimeout(timer);
+    mockApi
+      .getTransactions({ limit: PAGE_SIZE, page: 1 })
+      .then((response) => {
+        if (isMounted) {
+          setApiTransactions(response.items);
+          setHasMore(response.hasMore);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        // Handle error silently - show empty state
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const groupedTransactions = useMemo(
@@ -209,24 +135,42 @@ export function TransferHistoryScreen({ navigation }: Props) {
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setTransactions(MOCK_TRANSACTIONS);
-      setRefreshing(false);
-    }, 1000);
+    setCurrentPage(1);
+    mockApi
+      .getTransactions({ limit: PAGE_SIZE, page: 1 })
+      .then((response) => {
+        setApiTransactions(response.items);
+        setHasMore(response.hasMore);
+      })
+      .catch(() => {
+        // Handle error silently
+      })
+      .finally(() => {
+        setRefreshing(false);
+      });
   }, []);
 
   const handleLoadMore = useCallback(() => {
-    if (loadingMore) {
+    if (loadingMore || !hasMore) {
       return;
     }
     setLoadingMore(true);
-    // Simulate loading more
-    setTimeout(() => {
-      // In real app, fetch more from API
-      setLoadingMore(false);
-    }, 1000);
-  }, [loadingMore]);
+    const nextPage = currentPage + 1;
+
+    mockApi
+      .getTransactions({ limit: PAGE_SIZE, page: nextPage })
+      .then((response) => {
+        setApiTransactions((prev) => [...prev, ...response.items]);
+        setCurrentPage(nextPage);
+        setHasMore(response.hasMore);
+      })
+      .catch(() => {
+        // Handle error silently
+      })
+      .finally(() => {
+        setLoadingMore(false);
+      });
+  }, [loadingMore, hasMore, currentPage]);
 
   const handleTransactionPress = useCallback(
     (transaction: Transaction) => {

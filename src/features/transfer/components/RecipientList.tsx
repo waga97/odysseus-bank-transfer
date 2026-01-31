@@ -3,7 +3,7 @@
  * List of recent/favorite recipients - warm theme
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -25,12 +25,52 @@ interface RecipientListProps {
   searchQuery?: string;
 }
 
+interface RecipientItemProps {
+  recipient: Recipient;
+  onPress: (recipient: Recipient) => void;
+}
+
 function maskAccountNumber(accountNumber: string): string {
   if (accountNumber.length <= 4) {
     return accountNumber;
   }
   return `**** ${accountNumber.slice(-4)}`;
 }
+
+/**
+ * Memoized recipient list item - prevents re-renders when other items change
+ */
+const RecipientItem = memo(function RecipientItem({
+  recipient,
+  onPress,
+}: RecipientItemProps) {
+  const handlePress = useCallback(() => {
+    onPress(recipient);
+  }, [onPress, recipient]);
+
+  return (
+    <Pressable
+      style={({ pressed }) => [
+        styles.recipientItem,
+        pressed && styles.recipientItemPressed,
+      ]}
+      onPress={handlePress}
+    >
+      <Avatar name={recipient.name} size="large" />
+
+      <View style={styles.recipientInfo}>
+        <Text style={styles.recipientName}>{recipient.name}</Text>
+        <Text style={styles.recipientDetail}>
+          {recipient.accountNumber
+            ? maskAccountNumber(recipient.accountNumber)
+            : recipient.phoneNumber}
+        </Text>
+      </View>
+
+      <Icon name="chevron-right" size={20} color={colors.text.tertiary} />
+    </Pressable>
+  );
+});
 
 export function RecipientList({
   recipients,
@@ -55,28 +95,7 @@ export function RecipientList({
   }, [recipients, searchQuery]);
 
   const renderItem: ListRenderItem<Recipient> = useCallback(
-    ({ item }) => (
-      <Pressable
-        style={({ pressed }) => [
-          styles.recipientItem,
-          pressed && styles.recipientItemPressed,
-        ]}
-        onPress={() => onRecipientPress(item)}
-      >
-        <Avatar name={item.name} size="large" />
-
-        <View style={styles.recipientInfo}>
-          <Text style={styles.recipientName}>{item.name}</Text>
-          <Text style={styles.recipientDetail}>
-            {item.accountNumber
-              ? maskAccountNumber(item.accountNumber)
-              : item.phoneNumber}
-          </Text>
-        </View>
-
-        <Icon name="chevron-right" size={20} color={colors.text.tertiary} />
-      </Pressable>
-    ),
+    ({ item }) => <RecipientItem recipient={item} onPress={onRecipientPress} />,
     [onRecipientPress]
   );
 

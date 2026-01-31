@@ -1,6 +1,7 @@
 /**
  * Odysseus Bank - Transfer Limit Warning
  * Displays warning when transfer amount approaches or exceeds limits
+ * Uses shared threshold from validateTransfer for consistency
  */
 
 import React from 'react';
@@ -11,6 +12,7 @@ import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
 import { formatCurrency } from '@utils/currency';
+import { shouldWarnForLimit, exceedsLimit } from '@utils/validateTransfer';
 
 type WarningLevel = 'info' | 'warning' | 'error';
 
@@ -19,6 +21,7 @@ interface LimitWarningProps {
   amount: number;
   limit: number;
   remaining?: number;
+  used?: number;
 }
 
 function getRemainingLabel(type: LimitWarningProps['type']): string {
@@ -45,19 +48,25 @@ function getLimitLabel(type: LimitWarningProps['type']): string {
   }
 }
 
+/**
+ * Determine warning level using shared validation logic
+ */
 function getWarningLevel(
   amount: number,
   limit: number,
-  remaining?: number
+  remaining?: number,
+  used?: number
 ): WarningLevel {
   const effectiveRemaining = remaining ?? limit;
+  const effectiveUsed = used ?? limit - effectiveRemaining;
 
-  if (amount > effectiveRemaining) {
+  // Check if exceeds limit
+  if (exceedsLimit(amount, effectiveRemaining)) {
     return 'error';
   }
 
-  // Warn if amount is more than 80% of remaining
-  if (amount > effectiveRemaining * 0.8) {
+  // Check if approaching limit using shared threshold
+  if (shouldWarnForLimit(amount, effectiveUsed, limit)) {
     return 'warning';
   }
 
@@ -95,8 +104,9 @@ export function LimitWarning({
   amount,
   limit,
   remaining,
+  used,
 }: LimitWarningProps) {
-  const level = getWarningLevel(amount, limit, remaining);
+  const level = getWarningLevel(amount, limit, remaining, used);
   const warningColors = getWarningColors(level);
   const effectiveRemaining = remaining ?? limit;
   const exceeds = amount > effectiveRemaining;
@@ -155,8 +165,10 @@ interface TransferLimitWarningsProps {
   amount: number;
   dailyLimit: number;
   dailyRemaining: number;
+  dailyUsed: number;
   monthlyLimit: number;
   monthlyRemaining: number;
+  monthlyUsed: number;
   perTransactionLimit: number;
 }
 
@@ -164,8 +176,10 @@ export function TransferLimitWarnings({
   amount,
   dailyLimit,
   dailyRemaining,
+  dailyUsed,
   monthlyLimit,
   monthlyRemaining,
+  monthlyUsed,
   perTransactionLimit,
 }: TransferLimitWarningsProps) {
   if (amount <= 0) {
@@ -184,12 +198,14 @@ export function TransferLimitWarnings({
         amount={amount}
         limit={dailyLimit}
         remaining={dailyRemaining}
+        used={dailyUsed}
       />
       <LimitWarning
         type="monthly"
         amount={amount}
         limit={monthlyLimit}
         remaining={monthlyRemaining}
+        used={monthlyUsed}
       />
     </View>
   );

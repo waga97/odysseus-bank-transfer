@@ -1,6 +1,7 @@
 /**
  * Odysseus Bank - Transfer Processing Screen
  * Shows transfer in progress with animated loading state
+ * Actually calls transferApi and updates account state
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -13,29 +14,71 @@ import { borderRadius } from '@theme/borderRadius';
 import { componentSizes } from '@theme/componentSizes';
 import type { RootStackScreenProps } from '@navigation/types';
 import { formatCurrency } from '@utils/currency';
+import { mockApi } from '@services/mocks';
+import { useAccountStore } from '@stores/accountStore';
 
 type Props = RootStackScreenProps<'TransferProcessing'>;
 
+type TransferStatus = 'processing' | 'success' | 'error';
+
 const PROCESSING_STEPS = [
-  { id: 1, text: 'Verifying account details...', duration: 800 },
-  { id: 2, text: 'Checking transfer limits...', duration: 600 },
-  { id: 3, text: 'Processing transaction...', duration: 1000 },
-  { id: 4, text: 'Confirming with recipient bank...', duration: 800 },
-  { id: 5, text: 'Completing transfer...', duration: 600 },
+  { id: 1, text: 'Verifying account details...', duration: 600 },
+  { id: 2, text: 'Checking transfer limits...', duration: 400 },
+  { id: 3, text: 'Processing transaction...', duration: 600 },
+  { id: 4, text: 'Confirming with recipient bank...', duration: 400 },
 ];
 
+/**
+ * Map API error codes to error screen types
+ */
+function mapErrorToType(
+  error: Error
+):
+  | 'insufficient_funds'
+  | 'network_error'
+  | 'daily_limit'
+  | 'recipient_not_found'
+  | 'generic' {
+  const message = error.message;
+
+  if (message === 'INSUFFICIENT_FUNDS') {
+    return 'insufficient_funds';
+  }
+  if (message === 'NETWORK_ERROR') {
+    return 'network_error';
+  }
+  if (message === 'DAILY_LIMIT_EXCEEDED') {
+    return 'daily_limit';
+  }
+  if (message === 'INVALID_ACCOUNT') {
+    return 'recipient_not_found';
+  }
+
+  return 'generic';
+}
+
 export function TransferProcessingScreen({ navigation, route }: Props) {
-  const { transferId, recipient, amount, note } = route.params;
+  const { recipient, amount, note } = route.params;
   const insets = useSafeAreaInsets();
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
+  const [status, setStatus] = useState<TransferStatus>('processing');
+  const [statusText, setStatusText] = useState(
+    PROCESSING_STEPS[0]?.text ?? 'Processing...'
+  );
+
+  // Store actions
+  const { updateBalance, updateLimitsUsed, addTransaction, defaultAccount } =
+    useAccountStore();
 
   // Animation values
   const spinValue = useRef(new Animated.Value(0)).current;
   const progressValue = useRef(new Animated.Value(0)).current;
   const scaleValue = useRef(new Animated.Value(1)).current;
   const checkmarkScale = useRef(new Animated.Value(0)).current;
+
+  // Track if processing has started to prevent re-runs
+  const hasStartedRef = useRef(false);
 
   // Spinning animation
   useEffect(() => {
@@ -52,30 +95,74 @@ export function TransferProcessingScreen({ navigation, route }: Props) {
     return () => spin.stop();
   }, [spinValue]);
 
-  // Progress through steps
+  // Main processing flow - runs once on mount
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
+    // Prevent re-running if already started
+    if (hasStartedRef.current) {
+      return;
+    }
+    hasStartedRef.current = true;
 
-    const processStep = (stepIndex: number) => {
-      const step = PROCESSING_STEPS[stepIndex];
-      if (stepIndex < PROCESSING_STEPS.length && step) {
-        setCurrentStep(stepIndex);
+    let isMounted = true;
+    let stepTimeout: ReturnType<typeof setTimeout>;
 
-        // Animate progress bar
+    const runProcessing = async () => {
+      // Start API call in background
+      const apiPromise = mockApi.executeTransfer({
+        amount,
+        recipientId: recipient.id,
+        recipientAccountNumber: recipient.accountNumber,
+        recipientPhoneNumber: recipient.phoneNumber,
+        recipientName: recipient.name,
+        bankName: recipient.bankName,
+        note,
+        fromAccountId: defaultAccount?.id ?? '',
+      });
+
+      // Step through visual progress
+      for (let i = 0; i < PROCESSING_STEPS.length; i++) {
+        if (!isMounted) {
+          return;
+        }
+
+        const step = PROCESSING_STEPS[i];
+        if (!step) {
+          continue;
+        }
+
+        setCurrentStep(i);
+        setStatusText(step.text);
+
         Animated.timing(progressValue, {
-          toValue: (stepIndex + 1) / PROCESSING_STEPS.length,
+          toValue: (i + 1) / PROCESSING_STEPS.length,
           duration: step.duration,
           useNativeDriver: false,
         }).start();
 
-        timeout = setTimeout(() => {
-          processStep(stepIndex + 1);
-        }, step.duration);
-      } else {
-        // Complete
-        setIsComplete(true);
+        await new Promise((resolve) => {
+          stepTimeout = setTimeout(resolve, step.duration);
+        });
+      }
 
-        // Animate success
+      // Wait for API to complete
+      try {
+        const transaction = await apiPromise;
+
+        if (!isMounted) {
+          return;
+        }
+
+        // Update store state
+        if (defaultAccount) {
+          updateBalance(defaultAccount.id, defaultAccount.balance - amount);
+        }
+        updateLimitsUsed(amount);
+        addTransaction(transaction);
+
+        // Success animation
+        setStatus('success');
+        setStatusText('Transfer Complete!');
+
         Animated.sequence([
           Animated.timing(scaleValue, {
             toValue: 0.8,
@@ -98,37 +185,51 @@ export function TransferProcessingScreen({ navigation, route }: Props) {
         }).start();
 
         // Navigate to success after brief delay
-        timeout = setTimeout(() => {
+        setTimeout(() => {
+          if (!isMounted) {
+            return;
+          }
+
           navigation.replace('TransferSuccess', {
             transaction: {
-              id: transferId,
-              amount,
-              recipientName: recipient.name,
-              recipientAccount: recipient.accountNumber,
-              bankName: recipient.bankName,
-              date: new Date().toISOString(),
-              reference: `ODS-${Math.floor(10000 + Math.random() * 90000)}`,
-              note,
+              id: transaction.id,
+              amount: transaction.amount,
+              recipientName: transaction.recipient.name,
+              recipientAccount: transaction.recipient.accountNumber,
+              bankName: transaction.recipient.bankName,
+              date: transaction.createdAt,
+              reference: transaction.reference,
+              note: transaction.note,
             },
           });
         }, 1000);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        // Error - navigate to error screen
+        const errorType = mapErrorToType(error as Error);
+
+        navigation.replace('TransferError', {
+          errorType,
+          errorMessage: (error as Error).message,
+        });
       }
     };
 
-    // Start processing after initial delay
-    timeout = setTimeout(() => processStep(0), 300);
+    // Start after initial delay
+    const initialTimeout = setTimeout(() => {
+      void runProcessing();
+    }, 300);
 
-    return () => clearTimeout(timeout);
-  }, [
-    navigation,
-    transferId,
-    recipient,
-    amount,
-    note,
-    progressValue,
-    scaleValue,
-    checkmarkScale,
-  ]);
+    return () => {
+      isMounted = false;
+      clearTimeout(initialTimeout);
+      clearTimeout(stepTimeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
@@ -141,6 +242,7 @@ export function TransferProcessingScreen({ navigation, route }: Props) {
   });
 
   const formattedAmount = formatCurrency(amount);
+  const isComplete = status === 'success';
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -179,9 +281,7 @@ export function TransferProcessingScreen({ navigation, route }: Props) {
 
         {/* Status Text */}
         <Text variant="titleSmall" color="primary" align="center">
-          {isComplete
-            ? 'Transfer Complete!'
-            : (PROCESSING_STEPS[currentStep]?.text ?? 'Processing...')}
+          {statusText}
         </Text>
 
         {/* Progress Bar */}

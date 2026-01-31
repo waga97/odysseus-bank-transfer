@@ -20,6 +20,7 @@ import { borderRadius } from '@theme/borderRadius';
 import type { RootStackScreenProps } from '@navigation/types';
 import { useAccountStore } from '@stores/accountStore';
 import { formatCurrency } from '@utils/currency';
+import { shouldWarnForLimit } from '@utils/validateTransfer';
 
 type Props = RootStackScreenProps<'TransferReview'>;
 
@@ -56,9 +57,11 @@ export function TransferReviewScreen({ navigation, route }: Props) {
   const currentBalance = defaultAccount?.balance ?? 0;
   const newBalance = currentBalance - amount;
 
-  // Check if approaching limit
+  // Check if approaching limit - uses shared threshold for consistency
+  const dailyUsed = transferLimits?.daily.used ?? 0;
+  const dailyLimit = transferLimits?.daily.limit ?? 10000;
   const dailyRemaining = transferLimits?.daily.remaining ?? 10000;
-  const isApproachingLimit = amount >= dailyRemaining * 0.8;
+  const isApproachingLimit = shouldWarnForLimit(amount, dailyUsed, dailyLimit);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

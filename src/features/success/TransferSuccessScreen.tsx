@@ -141,8 +141,7 @@ Thank you for using Odysseus Bank.
         dialogTitle: 'Share Receipt',
         UTI: 'public.png',
       });
-    } catch (error) {
-      console.error('Share error:', error);
+    } catch {
       Alert.alert('Error', 'Failed to share receipt. Please try again.');
     } finally {
       setIsSharing(false);

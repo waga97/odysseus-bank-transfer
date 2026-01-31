@@ -62,7 +62,7 @@ export function HomeScreen() {
           accountApi.getAccounts(),
           recipientApi.getRecipients(),
           userApi.getLimits(),
-          transactionApi.getTransactions({ limit: 10 }),
+          transactionApi.getTransactions({ limit: 5 }),
           bankApi.getBanks(),
         ]);
 
@@ -73,10 +73,9 @@ export function HomeScreen() {
       setTransferLimits(limits);
       setTransactions(transactions.items);
       setBanks(banks);
-    } catch (error) {
+    } catch {
       // Handle error silently for now
-      // In production, show error toast
-      console.error('Failed to load data:', error);
+      // In production, show error toast or offline banner
     } finally {
       setLoading(false);
     }

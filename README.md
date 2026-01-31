@@ -169,6 +169,9 @@ Tests cover:
 - Transfer validation logic
 - Currency formatting
 - Mock API behavior
+- Store state management
+
+For manual testing flows (happy paths, error scenarios, and how to trigger each error type), see [TESTCASES.md](./TESTCASES.md).
 
 ## Linting & Formatting
 

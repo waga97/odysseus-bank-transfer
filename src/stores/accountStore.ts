@@ -45,6 +45,8 @@ interface AccountState {
   // Limits Actions
   setTransferLimits: (limits: TransferLimits) => void;
   updateDailyUsed: (amount: number) => void;
+  updateMonthlyUsed: (amount: number) => void;
+  updateLimitsUsed: (amount: number) => void;
 
   // Bank Actions
   setBanks: (banks: Bank[]) => void;
@@ -179,6 +181,49 @@ export const useAccountStore = create<AccountState>((set, get) => ({
             ...state.transferLimits.daily,
             used: newUsed,
             remaining: state.transferLimits.daily.limit - newUsed,
+          },
+        },
+      };
+    }),
+
+  updateMonthlyUsed: (amount) =>
+    set((state) => {
+      if (!state.transferLimits) {
+        return state;
+      }
+      const newUsed = state.transferLimits.monthly.used + amount;
+      return {
+        transferLimits: {
+          ...state.transferLimits,
+          monthly: {
+            ...state.transferLimits.monthly,
+            used: newUsed,
+            remaining: state.transferLimits.monthly.limit - newUsed,
+          },
+        },
+      };
+    }),
+
+  // Combined update for both daily and monthly - use this for transfers
+  updateLimitsUsed: (amount) =>
+    set((state) => {
+      if (!state.transferLimits) {
+        return state;
+      }
+      const newDailyUsed = state.transferLimits.daily.used + amount;
+      const newMonthlyUsed = state.transferLimits.monthly.used + amount;
+      return {
+        transferLimits: {
+          ...state.transferLimits,
+          daily: {
+            ...state.transferLimits.daily,
+            used: newDailyUsed,
+            remaining: state.transferLimits.daily.limit - newDailyUsed,
+          },
+          monthly: {
+            ...state.transferLimits.monthly,
+            used: newMonthlyUsed,
+            remaining: state.transferLimits.monthly.limit - newMonthlyUsed,
           },
         },
       };

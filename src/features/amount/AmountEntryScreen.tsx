@@ -182,8 +182,10 @@ export function AmountEntryScreen({ navigation, route }: Props) {
               amount={numericAmount}
               dailyLimit={limits.daily.limit}
               dailyRemaining={limits.daily.remaining}
+              dailyUsed={limits.daily.used}
               monthlyLimit={limits.monthly.limit}
               monthlyRemaining={limits.monthly.remaining}
+              monthlyUsed={limits.monthly.used}
               perTransactionLimit={limits.perTransaction}
             />
           </View>

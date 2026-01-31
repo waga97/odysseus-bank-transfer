@@ -31,12 +31,13 @@ const accountTypeIcons: Record<string, string> = {
 };
 
 // Card background colors based on account type
+// Current Account (default) gets the accent color scheme
 const DEFAULT_COLORS = { bg: '#1a1a1a', accent: palette.accent.main };
 const DEFAULT_ICON = 'credit-card';
 
 const accountTypeColors: Record<string, { bg: string; accent: string }> = {
-  savings: { bg: '#1a1a1a', accent: palette.accent.main },
-  current: { bg: '#2d2d2d', accent: '#ffffff' },
+  current: { bg: '#1a1a1a', accent: palette.accent.main },
+  savings: { bg: '#2d2d2d', accent: '#ffffff' },
   investment: { bg: palette.accent.main, accent: '#ffffff' },
   default: DEFAULT_COLORS,
 };

@@ -29,6 +29,7 @@ import type { RootStackScreenProps } from '@navigation/types';
 import { formatCurrency } from '@utils/currency';
 import { appConfig } from '@config/app';
 import { lightHaptic, errorHaptic, successHaptic } from '@utils/haptics';
+import { useAuthStore } from '@stores/authStore';
 import { useShakeAnimation } from '@hooks/useShakeAnimation';
 import { usePulseAnimation } from '@hooks/usePulseAnimation';
 
@@ -41,9 +42,14 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
   const { recipient, amount, note } = route.params;
   const insets = useSafeAreaInsets();
 
+  // Check if biometric is enabled in settings
+  const biometricAuthEnabled = useAuthStore(
+    (state) => state.biometricAuthEnabled
+  );
+
   const [authState, setAuthState] = useState<AuthState>('idle');
   const [biometricType, setBiometricType] = useState<BiometricType>('none');
-  const [showPinFallback, setShowPinFallback] = useState(false);
+  const [showPinFallback, setShowPinFallback] = useState(!biometricAuthEnabled);
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
 
@@ -67,6 +73,13 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
   }, [biometricType]);
 
   const checkBiometricType = async () => {
+    // If biometric is disabled in settings, use PIN
+    if (!biometricAuthEnabled) {
+      setBiometricType('none');
+      setShowPinFallback(true);
+      return;
+    }
+
     try {
       const compatible = await LocalAuthentication.hasHardwareAsync();
       if (!compatible) {
@@ -248,8 +261,8 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
             </Text>
           )}
 
-          {/* Use Biometric Option */}
-          {biometricType !== 'none' && (
+          {/* Use Biometric Option - only show if enabled in settings */}
+          {biometricAuthEnabled && biometricType !== 'none' && (
             <Pressable
               style={styles.useBiometricButton}
               onPress={handleUseBiometric}

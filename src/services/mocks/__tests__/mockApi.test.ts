@@ -104,6 +104,27 @@ describe('mockApi.executeTransfer', () => {
     expect(newLimits.daily.remaining).toBe(initialLimits.daily.remaining - 500);
   });
 
+  it('updates monthly used after transfer', async () => {
+    const initialLimits = await mockApi.getLimits();
+    await mockApi.executeTransfer(validRequest);
+
+    const newLimits = await mockApi.getLimits();
+    expect(newLimits.monthly.used).toBe(initialLimits.monthly.used + 500);
+    expect(newLimits.monthly.remaining).toBe(
+      initialLimits.monthly.remaining - 500
+    );
+  });
+
+  it('accumulates monthly used across multiple transfers', async () => {
+    const initialLimits = await mockApi.getLimits();
+
+    await mockApi.executeTransfer({ ...validRequest, amount: 100 });
+    await mockApi.executeTransfer({ ...validRequest, amount: 200 });
+
+    const newLimits = await mockApi.getLimits();
+    expect(newLimits.monthly.used).toBe(initialLimits.monthly.used + 300);
+  });
+
   it('throws INSUFFICIENT_FUNDS when balance too low', async () => {
     await expect(
       mockApi.executeTransfer({
@@ -123,6 +144,16 @@ describe('mockApi.executeTransfer', () => {
         amount: dailyRemaining + 100,
       })
     ).rejects.toThrow('DAILY_LIMIT_EXCEEDED');
+  });
+
+  // Test account number for invalid account (only error that can't be triggered naturally)
+  it('throws INVALID_ACCOUNT for test account 111122223333', async () => {
+    await expect(
+      mockApi.executeTransfer({
+        ...validRequest,
+        recipientAccountNumber: '111122223333',
+      })
+    ).rejects.toThrow('INVALID_ACCOUNT');
   });
 
   it('adds transaction to history', async () => {
@@ -148,5 +179,18 @@ describe('mockApi.reset', () => {
 
     const limits = await mockApi.getLimits();
     expect(limits.daily.used).toBe(mockTransferLimits.daily.used);
+  });
+
+  it('restores monthly used to initial value', async () => {
+    await mockApi.executeTransfer({
+      amount: 1000,
+      recipientAccountNumber: '1234567890',
+      fromAccountId: 'acc-001',
+    });
+
+    mockApi.reset();
+
+    const limits = await mockApi.getLimits();
+    expect(limits.monthly.used).toBe(mockTransferLimits.monthly.used);
   });
 });

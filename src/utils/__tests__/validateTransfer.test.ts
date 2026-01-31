@@ -282,3 +282,43 @@ describe('getFirstErrorMessage', () => {
     expect(message).toBeNull();
   });
 });
+
+describe('shouldWarnForLimit', () => {
+  // Import after test setup
+  const { shouldWarnForLimit } = require('../validateTransfer');
+
+  it('returns false for zero amount', () => {
+    expect(shouldWarnForLimit(0, 0, 10000)).toBe(false);
+  });
+
+  it('returns false when below 80% threshold', () => {
+    // used=0, amount=7000, limit=10000 -> newUsed=7000 < 8000 (80%)
+    expect(shouldWarnForLimit(7000, 0, 10000)).toBe(false);
+  });
+
+  it('returns true when at 80% threshold', () => {
+    // used=0, amount=8000, limit=10000 -> newUsed=8000 = 8000 (80%)
+    expect(shouldWarnForLimit(8000, 0, 10000)).toBe(true);
+  });
+
+  it('returns true when above 80% threshold', () => {
+    // used=5000, amount=4000, limit=10000 -> newUsed=9000 > 8000 (80%)
+    expect(shouldWarnForLimit(4000, 5000, 10000)).toBe(true);
+  });
+});
+
+describe('exceedsLimit', () => {
+  const { exceedsLimit } = require('../validateTransfer');
+
+  it('returns false when amount equals remaining', () => {
+    expect(exceedsLimit(5000, 5000)).toBe(false);
+  });
+
+  it('returns false when amount is less than remaining', () => {
+    expect(exceedsLimit(3000, 5000)).toBe(false);
+  });
+
+  it('returns true when amount exceeds remaining', () => {
+    expect(exceedsLimit(6000, 5000)).toBe(true);
+  });
+});
