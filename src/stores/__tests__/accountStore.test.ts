@@ -17,8 +17,6 @@ beforeEach(() => {
     accounts: [],
     defaultAccount: null,
     recipients: [],
-    recentRecipients: [],
-    favoriteRecipients: [],
     transactions: [],
     transferLimits: mockLimits,
     banks: [],

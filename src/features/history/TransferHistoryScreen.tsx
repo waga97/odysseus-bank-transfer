@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer History Screen
+ * Ryt Bank - Transfer History Screen
  * List of past transactions with pagination (5 per page) and pull-to-refresh
  */
 
@@ -8,13 +8,13 @@ import {
   View,
   StyleSheet,
   FlatList,
-  Pressable,
   RefreshControl,
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, Icon, Avatar, ScreenHeader } from '@components/ui';
+import { Text, Icon, Avatar, ScreenHeader, Toast } from '@components/ui';
+import { BottomNav } from '@features/home/components';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
@@ -86,6 +86,24 @@ export function TransferHistoryScreen({ navigation }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  // Toast state for error handling
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const handleTabPress = useCallback(
+    (tab: 'home' | 'transfer' | 'analytics' | 'settings') => {
+      if (tab === 'home') {
+        navigation.navigate('Home');
+      } else if (tab === 'transfer') {
+        navigation.navigate('TransferHub');
+      } else if (tab === 'settings') {
+        navigation.navigate('Settings');
+      }
+      // analytics tab - already here (history)
+    },
+    [navigation]
+  );
+
   // Get transactions from store (includes newly completed transfers)
   const storeTransactions = useAccountStore((state) => state.transactions);
 
@@ -113,8 +131,10 @@ export function TransferHistoryScreen({ navigation }: Props) {
         }
       })
       .catch(() => {
-        // Handle error silently - show empty state
+        // Show error toast
         if (isMounted) {
+          setToastMessage('Failed to load transactions. Pull down to retry.');
+          setToastVisible(true);
           setIsLoading(false);
         }
       });
@@ -129,10 +149,6 @@ export function TransferHistoryScreen({ navigation }: Props) {
     [transactions]
   );
 
-  const handleBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
     setCurrentPage(1);
@@ -143,7 +159,8 @@ export function TransferHistoryScreen({ navigation }: Props) {
         setHasMore(response.hasMore);
       })
       .catch(() => {
-        // Handle error silently
+        setToastMessage('Failed to refresh. Please try again.');
+        setToastVisible(true);
       })
       .finally(() => {
         setRefreshing(false);
@@ -165,21 +182,13 @@ export function TransferHistoryScreen({ navigation }: Props) {
         setHasMore(response.hasMore);
       })
       .catch(() => {
-        // Handle error silently
+        setToastMessage('Failed to load more transactions.');
+        setToastVisible(true);
       })
       .finally(() => {
         setLoadingMore(false);
       });
   }, [loadingMore, hasMore, currentPage]);
-
-  const handleTransactionPress = useCallback(
-    (transaction: Transaction) => {
-      navigation.navigate('TransactionDetails', {
-        transactionId: transaction.id,
-      });
-    },
-    [navigation]
-  );
 
   const renderTransactionItem = useCallback(
     ({ item }: { item: Transaction }) => {
@@ -187,13 +196,7 @@ export function TransferHistoryScreen({ navigation }: Props) {
       const isFailed = item.status === 'failed';
 
       return (
-        <Pressable
-          style={({ pressed }) => [
-            styles.transactionCard,
-            pressed && styles.transactionCardPressed,
-          ]}
-          onPress={() => handleTransactionPress(item)}
-        >
+        <View style={styles.transactionCard}>
           <Avatar name={item.recipient.name} size="medium" />
 
           <View style={styles.transactionInfo}>
@@ -234,10 +237,10 @@ export function TransferHistoryScreen({ navigation }: Props) {
               </Text>
             </View>
           </View>
-        </Pressable>
+        </View>
       );
     },
-    [handleTransactionPress]
+    []
   );
 
   const renderSectionHeader = useCallback(
@@ -323,32 +326,49 @@ export function TransferHistoryScreen({ navigation }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
 
-      <ScreenHeader title="Transfer History" onBack={handleBack} />
+      {/* Error Toast */}
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
+        type="error"
+        onDismiss={() => setToastVisible(false)}
+      />
 
-      {/* Transaction List or Skeleton */}
-      {isLoading ? (
-        renderSkeleton()
-      ) : (
-        <FlatList
-          data={flatData}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor={palette.accent.main}
-              colors={[palette.accent.main]}
-            />
-          }
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.3}
-          ListFooterComponent={renderFooter}
-          ListEmptyComponent={renderEmpty}
-        />
-      )}
+      <ScreenHeader title="Transfer History" />
+
+      <View style={styles.content}>
+        {/* Transaction List or Skeleton */}
+        {isLoading ? (
+          renderSkeleton()
+        ) : (
+          <FlatList
+            data={flatData}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                tintColor={palette.accent.main}
+                colors={[palette.accent.main]}
+              />
+            }
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.3}
+            ListFooterComponent={renderFooter}
+            ListEmptyComponent={renderEmpty}
+            // Virtualization hints for better performance with large lists
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            removeClippedSubviews={true}
+          />
+        )}
+      </View>
+
+      <BottomNav activeTab="analytics" onTabPress={handleTabPress} />
     </View>
   );
 }
@@ -357,6 +377,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background.primary,
+  },
+  content: {
+    flex: 1,
   },
   listContent: {
     paddingHorizontal: spacing[4],
@@ -381,9 +404,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     marginBottom: spacing[3],
     gap: spacing[3],
-  },
-  transactionCardPressed: {
-    backgroundColor: colors.background.tertiary,
   },
   transactionInfo: {
     flex: 1,

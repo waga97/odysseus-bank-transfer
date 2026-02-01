@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Store
+ * Ryt Bank - Transfer Store
  * Manages the current transfer flow state
  */
 

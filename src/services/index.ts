@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Services Exports
+ * Ryt Bank - Services Exports
  */
 
 export * from './api';

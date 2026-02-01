@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Processing Screen
+ * Ryt Bank - Transfer Processing Screen
  * Shows transfer in progress with animated loading state
  * Actually calls transferApi and updates account state
  */
@@ -39,6 +39,8 @@ function mapErrorToType(
   | 'network_error'
   | 'daily_limit'
   | 'monthly_limit'
+  | 'per_transaction_limit'
+  | 'invalid_amount'
   | 'recipient_not_found'
   | 'generic' {
   const message = error.message;
@@ -54,6 +56,12 @@ function mapErrorToType(
   }
   if (message === 'MONTHLY_LIMIT_EXCEEDED') {
     return 'monthly_limit';
+  }
+  if (message === 'PER_TRANSACTION_LIMIT_EXCEEDED') {
+    return 'per_transaction_limit';
+  }
+  if (message === 'INVALID_AMOUNT') {
+    return 'invalid_amount';
   }
   if (message === 'INVALID_ACCOUNT') {
     return 'recipient_not_found';
@@ -72,9 +80,8 @@ export function TransferProcessingScreen({ navigation, route }: Props) {
     PROCESSING_STEPS[0]?.text ?? 'Processing...'
   );
 
-  // Store actions
-  const { updateBalance, updateLimitsUsed, addTransaction, defaultAccount } =
-    useAccountStore();
+  // Use selector for reactive state only
+  const defaultAccount = useAccountStore((state) => state.defaultAccount);
 
   // Animation values
   const spinValue = useRef(new Animated.Value(0)).current;
@@ -161,11 +168,15 @@ export function TransferProcessingScreen({ navigation, route }: Props) {
           return;
         }
 
-        // Update store state
+        // Update store state (get actions from store - stable references)
+        const { updateBalance, updateLimitsUsed, addTransaction } =
+          useAccountStore.getState();
         if (defaultAccount) {
           updateBalance(defaultAccount.id, defaultAccount.balance - amount);
         }
         updateLimitsUsed(amount);
+        // Adding transaction automatically updates "Recent" recipients
+        // since they're derived from transaction history (single source of truth)
         addTransaction(transaction);
 
         // Success animation

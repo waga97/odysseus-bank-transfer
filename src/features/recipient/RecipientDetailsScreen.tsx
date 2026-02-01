@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Recipient Details Screen
+ * Ryt Bank - Recipient Details Screen
  * Enter account number for new recipient
  */
 
@@ -80,7 +80,6 @@ export function RecipientDetailsScreen({ navigation, route }: Props) {
         accountNumber: recipient.accountNumber,
         bankId,
         bankName,
-        isFavorite: false,
       });
       setTransferMethod('bank');
 

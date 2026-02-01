@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Data Models
+ * Ryt Bank - Data Models
  * Type definitions for all data entities
  */
 
@@ -49,8 +49,6 @@ export interface Recipient {
   bankId?: string;
   bankName?: string;
   avatar?: string;
-  isFavorite: boolean;
-  lastTransferDate?: string;
 }
 
 export interface Bank {

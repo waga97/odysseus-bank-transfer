@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Mock Exports
+ * Ryt Bank - Mock Exports
  */
 
 export { mockApi } from './mockApi';

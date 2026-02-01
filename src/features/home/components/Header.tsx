@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Home Header
+ * Ryt Bank - Home Header
  * Black header with logo, greeting, and profile avatar
  */
 
@@ -41,7 +41,7 @@ export function Header({ onNotificationPress, onProfilePress }: HeaderProps) {
           <View style={styles.logoIcon}>
             <Icon name="globe" size={24} color={palette.accent.main} />
           </View>
-          <Text style={styles.logoText}>Odysseus</Text>
+          <Text style={styles.logoText}>Ryt AI</Text>
         </View>
         <Text style={styles.greetingText}>
           {getGreeting()}, {user?.name?.split(' ')[0] ?? 'there'}

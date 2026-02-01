@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Retry Utility
+ * Ryt Bank - Retry Utility
  * Exponential backoff for transient network failures
  */
 

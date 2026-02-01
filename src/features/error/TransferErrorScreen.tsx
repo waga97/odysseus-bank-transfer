@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Error Screen
+ * Ryt Bank - Transfer Error Screen
  * Handles various transfer error states with appropriate messaging
  */
 
@@ -68,6 +68,24 @@ const ERROR_CONFIGS: Record<string, ErrorConfig> = {
     primaryAction: 'Request Limit Increase',
     secondaryAction: 'Set Reminder',
   },
+  per_transaction_limit: {
+    icon: 'alert-triangle',
+    iconColor: colors.status.warning,
+    iconBgColor: colors.status.warningBg,
+    title: 'Amount Too Large',
+    message:
+      'This amount exceeds your per-transaction limit. Please enter a smaller amount or contact support to increase your limit.',
+    primaryAction: 'Try Different Amount',
+    showContactSupport: true,
+  },
+  invalid_amount: {
+    icon: 'x-circle',
+    iconColor: colors.status.error,
+    iconBgColor: colors.status.errorBg,
+    title: 'Invalid Amount',
+    message: 'Please enter a valid transfer amount greater than zero.',
+    primaryAction: 'Try Again',
+  },
   recipient_not_found: {
     icon: 'user',
     iconColor: colors.status.error,
@@ -117,12 +135,14 @@ export function TransferErrorScreen({ navigation, route }: Props) {
   const handlePrimaryAction = () => {
     switch (errorType) {
       case 'insufficient_funds':
-        // Go back to amount entry
-        navigation.pop(2);
+      case 'per_transaction_limit':
+      case 'invalid_amount':
+        // Go back to amount entry (pop: Error -> Processing -> Review -> Amount)
+        navigation.pop(3);
         break;
       case 'network_error':
       case 'generic':
-        // Try again - go back
+        // Try again - go back to review screen
         navigation.goBack();
         break;
       case 'daily_limit':
@@ -135,7 +155,7 @@ export function TransferErrorScreen({ navigation, route }: Props) {
         break;
       case 'recipient_not_found':
         // Go back to recipient details
-        navigation.pop(3);
+        navigation.pop(4);
         break;
       case 'duplicate_transfer':
         // Go to transfer history

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Avatar Component
+ * Ryt Bank - Avatar Component
  * User profile picture with fallback initials
  */
 

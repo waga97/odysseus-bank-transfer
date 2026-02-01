@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Amount Feature Export
+ * Ryt Bank - Amount Feature Export
  */
 
 export { AmountEntryScreen } from './AmountEntryScreen';

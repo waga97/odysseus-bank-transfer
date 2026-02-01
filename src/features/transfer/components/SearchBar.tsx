@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Search Bar
+ * Ryt Bank - Search Bar
  * Search input for recipients - uses standardized Input component
  */
 

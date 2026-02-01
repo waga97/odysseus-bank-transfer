@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Shake Animation Hook
+ * Ryt Bank - Shake Animation Hook
  * Reusable shake effect for error feedback
  */
 

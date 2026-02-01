@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Home Feature Export
+ * Ryt Bank - Home Feature Export
  */
 
 export { HomeScreen } from './HomeScreen';

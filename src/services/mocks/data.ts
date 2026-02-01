@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Mock Data
+ * Ryt Bank - Mock Data
  * Realistic test data for development and testing
  * NOTE: User name and balances are controlled from @config/app.ts
  */
@@ -13,6 +13,9 @@ import type {
   Bank,
 } from '@types';
 import { appConfig } from '@config/app';
+
+// Default account number - used across transactions and accounts
+const DEFAULT_ACCOUNT_NUMBER = '0987654321';
 
 /**
  * Current logged-in user
@@ -35,7 +38,7 @@ export const mockAccounts: Account[] = [
   {
     id: 'acc-001',
     name: 'Current Account',
-    accountNumber: '0987654321',
+    accountNumber: DEFAULT_ACCOUNT_NUMBER,
     type: 'current',
     balance: appConfig.mockBalances.current,
     currency: 'RM',
@@ -83,67 +86,56 @@ export const mockTransferLimits: TransferLimits = {
 };
 
 /**
- * Saved/Recent recipients
+ * Saved recipients (address book)
+ * Note: "Recent" recipients are derived from transaction history
  */
 export const mockRecipients: Recipient[] = [
   {
     id: 'rec-001',
-    name: 'Sarah Jenkins',
+    name: 'Athena',
     accountNumber: '8829145678',
     bankId: 'bank-001',
     bankName: 'Maybank',
-    avatar: 'https://i.pravatar.cc/150?u=sarah',
-    isFavorite: true,
-    lastTransferDate: '2026-01-28T10:30:00Z',
+    avatar: 'https://i.pravatar.cc/150?u=athena',
   },
   {
     id: 'rec-002',
-    name: 'John Doe',
+    name: 'Apollo',
     accountNumber: '4492789012',
     bankId: 'bank-002',
     bankName: 'CIMB Bank',
-    avatar: 'https://i.pravatar.cc/150?u=john',
-    isFavorite: true,
-    lastTransferDate: '2026-01-25T14:20:00Z',
+    avatar: 'https://i.pravatar.cc/150?u=apollo',
   },
   {
     id: 'rec-003',
-    name: 'Lisa Wong',
+    name: 'Artemis',
     phoneNumber: '+60198765432',
     bankId: 'bank-001',
     bankName: 'Maybank',
-    avatar: 'https://i.pravatar.cc/150?u=lisa',
-    isFavorite: false,
-    lastTransferDate: '2026-01-20T09:15:00Z',
+    avatar: 'https://i.pravatar.cc/150?u=artemis',
   },
   {
     id: 'rec-004',
-    name: 'Michael Tan',
+    name: 'Hermes',
     accountNumber: '5567123456',
     bankId: 'bank-003',
     bankName: 'Public Bank',
-    avatar: 'https://i.pravatar.cc/150?u=michael',
-    isFavorite: false,
-    lastTransferDate: '2026-01-15T16:45:00Z',
+    avatar: 'https://i.pravatar.cc/150?u=hermes',
   },
   {
     id: 'rec-005',
-    name: 'Nur Aisyah',
+    name: 'Persephone',
     phoneNumber: '+60176543210',
     bankId: 'bank-004',
     bankName: 'RHB Bank',
-    isFavorite: false,
-    lastTransferDate: '2026-01-10T11:00:00Z',
   },
   {
     id: 'rec-006',
-    name: 'David Lee',
+    name: 'Hephaestus',
     accountNumber: '3345678901',
     bankId: 'bank-005',
     bankName: 'Hong Leong Bank',
-    avatar: 'https://i.pravatar.cc/150?u=david',
-    isFavorite: true,
-    lastTransferDate: '2026-01-05T08:30:00Z',
+    avatar: 'https://i.pravatar.cc/150?u=hephaestus',
   },
 ];
 
@@ -195,16 +187,16 @@ export const mockTransactions: Transaction[] = [
     currency: 'RM',
     recipient: {
       id: 'rec-001',
-      name: 'Sarah Jenkins',
+      name: 'Athena',
       accountNumber: '8829145678',
       bankName: 'Maybank',
     },
     sender: {
       id: 'user-001',
-      name: 'Ahmad Razak',
-      accountNumber: '1234567890',
+      name: appConfig.mockUser.name,
+      accountNumber: DEFAULT_ACCOUNT_NUMBER,
     },
-    note: 'Lunch money',
+    note: 'Wisdom payment',
     reference: 'ODS-88291',
     createdAt: '2026-01-28T10:30:00Z',
     completedAt: '2026-01-28T10:30:05Z',
@@ -217,16 +209,16 @@ export const mockTransactions: Transaction[] = [
     currency: 'RM',
     recipient: {
       id: 'rec-002',
-      name: 'John Doe',
+      name: 'Apollo',
       accountNumber: '4492789012',
       bankName: 'CIMB Bank',
     },
     sender: {
       id: 'user-001',
-      name: 'Ahmad Razak',
-      accountNumber: '1234567890',
+      name: appConfig.mockUser.name,
+      accountNumber: DEFAULT_ACCOUNT_NUMBER,
     },
-    note: 'Rent payment',
+    note: 'Sun chariot rental',
     reference: 'ODS-88290',
     createdAt: '2026-01-25T14:20:00Z',
     completedAt: '2026-01-25T14:20:08Z',
@@ -239,14 +231,14 @@ export const mockTransactions: Transaction[] = [
     currency: 'RM',
     recipient: {
       id: 'rec-003',
-      name: 'Lisa Wong',
+      name: 'Artemis',
       phoneNumber: '+60198765432',
       bankName: 'Maybank',
     },
     sender: {
       id: 'user-001',
-      name: 'Ahmad Razak',
-      accountNumber: '1234567890',
+      name: appConfig.mockUser.name,
+      accountNumber: DEFAULT_ACCOUNT_NUMBER,
     },
     reference: 'ODS-88289',
     createdAt: '2026-01-20T09:15:00Z',
@@ -260,16 +252,16 @@ export const mockTransactions: Transaction[] = [
     currency: 'RM',
     recipient: {
       id: 'rec-004',
-      name: 'Michael Tan',
+      name: 'Hermes',
       accountNumber: '5567123456',
       bankName: 'Public Bank',
     },
     sender: {
       id: 'user-001',
-      name: 'Ahmad Razak',
-      accountNumber: '1234567890',
+      name: appConfig.mockUser.name,
+      accountNumber: DEFAULT_ACCOUNT_NUMBER,
     },
-    note: 'Birthday gift',
+    note: 'Messenger fee',
     reference: 'ODS-88288',
     createdAt: '2026-01-15T16:45:00Z',
     completedAt: '2026-01-15T16:45:06Z',
@@ -282,14 +274,14 @@ export const mockTransactions: Transaction[] = [
     currency: 'RM',
     recipient: {
       id: 'rec-005',
-      name: 'Nur Aisyah',
+      name: 'Persephone',
       phoneNumber: '+60176543210',
       bankName: 'RHB Bank',
     },
     sender: {
       id: 'user-001',
-      name: 'Ahmad Razak',
-      accountNumber: '1234567890',
+      name: appConfig.mockUser.name,
+      accountNumber: DEFAULT_ACCOUNT_NUMBER,
     },
     reference: 'ODS-88287',
     createdAt: '2026-01-10T11:00:00Z',

@@ -15,10 +15,10 @@ Manual testing guide for the Payment Transfer Module. Covers both successful flo
 5. Tap "Continue"
 6. Review transfer details
 7. Tap "Confirm Transfer"
-8. Authenticate with Face ID / Touch ID (or enter PIN: 123456)
+8. Authenticate with Face ID / Touch ID (or device passcode if prompted)
 9. Wait for processing to complete
 
-**Expected:** Transfer succeeds, success screen shows with reference number. Balance updates on home screen.
+**Expected:** Transfer succeeds, success screen shows with reference number. Balance updates on home screen. The recipient appears at the top of the "Recent" list for future transfers.
 
 ---
 
@@ -49,15 +49,16 @@ Manual testing guide for the Payment Transfer Module. Covers both successful flo
 
 ---
 
-### 4. Transfer with PIN Authentication
+### 4. Transfer with Device Passcode Fallback
 
 **Steps:**
 
-1. Go to Settings > disable "Face ID Authentication" toggle
-2. Start a transfer
-3. On auth screen, enter PIN: 123456
+1. Start a transfer to any recipient
+2. Enter amount and continue to auth screen
+3. When biometric prompt appears, tap "Enter Passcode" (iOS) or use fallback option
+4. Enter your device passcode
 
-**Expected:** PIN is accepted, transfer proceeds to processing.
+**Expected:** Device passcode is accepted via native authentication, transfer proceeds to processing.
 
 ---
 
@@ -168,45 +169,26 @@ To test more reliably, change `mockApi.networkFailureRate` in `src/config/app.ts
 
 ---
 
-### 5. Wrong PIN Entry
+### 5. Biometric Auth Cancelled
 
 **Error Name:** N/A (not an API error)
 
 **How to Trigger:**
 
-- Enter incorrect PIN on auth screen
+- Cancel Face ID / Touch ID prompt without using passcode fallback
 
 **Steps:**
 
-1. Go to Settings > disable Face ID Authentication
-2. Start any transfer
-3. On PIN screen, enter wrong PIN (e.g. 000000)
+1. Start a transfer
+2. When biometric prompt appears, tap "Cancel" (dismiss the entire auth prompt)
 
-**Expected:** PIN dots shake, error message "Incorrect PIN. Please try again." appears. PIN field clears for retry.
-
----
-
-### 6. Biometric Auth Cancelled
-
-**Error Name:** N/A (not an API error)
-
-**How to Trigger:**
-
-- Cancel Face ID / Touch ID prompt
-
-**Steps:**
-
-1. Make sure Face ID is enabled in Settings
-2. Start a transfer
-3. When biometric prompt appears, tap "Cancel"
-
-**Expected:** Screen shows "Authentication cancelled" with retry option. User can tap "Use PIN instead" as fallback.
+**Expected:** Screen shows "Authentication cancelled" with a "Try Again" button. User can retry authentication.
 
 ---
 
-### 7. Per-Transaction Limit Exceeded
+### 6. Per-Transaction Limit Exceeded
 
-**Error Name:** Blocked at UI level (doesn't reach API)
+**Error Name:** PER_TRANSACTION_LIMIT (validated at UI and API level)
 
 **How to Trigger:**
 
@@ -222,7 +204,7 @@ To test more reliably, change `mockApi.networkFailureRate` in `src/config/app.ts
 
 ---
 
-### 8. Monthly Limit Exceeded
+### 7. Monthly Limit Exceeded
 
 **Error Name:** MONTHLY_LIMIT_EXCEEDED
 
@@ -242,22 +224,33 @@ Note: Monthly limit is also enforced at the API level, so even if UI validation 
 
 ---
 
+### 8. Recent Recipients Update After Transfer
+
+**Steps:**
+
+1. Note the current order of the "Recent" recipients list on the Transfer screen
+2. Transfer to a recipient who is NOT at the top of the list (or a new recipient)
+3. After successful transfer, return to the Transfer screen
+
+**Expected:** The recipient you just transferred to now appears at the top of the "Recent" list. Recent recipients are derived from transaction history (single source of truth).
+
+---
+
 ## Configuration Tips
 
 You can adjust these values in `src/config/app.ts` to make testing easier:
 
-| Setting                            | Default  | What it affects                     |
-| ---------------------------------- | -------- | ----------------------------------- |
-| `pinCode`                          | 123456   | PIN for auth fallback               |
-| `mockBalances.current`             | 73566.75 | Account balance shown               |
-| `transferLimits.daily.used`        | 2000     | How much of daily limit is "used"   |
-| `transferLimits.monthly.used`      | 15000    | How much of monthly limit is "used" |
-| `transferLimits.perTransaction`    | 6000     | Max single transfer amount          |
-| `loadingDelay`                     | 800      | API response delay in ms            |
-| `features.enableBiometrics`        | true     | Default state of Face ID toggle     |
-| `mockApi.networkFailureRate`       | 0.05     | Network error probability (0-1)     |
-| `mockApi.transferDelay`            | 1500     | Transfer processing delay in ms     |
-| `validation.limitWarningThreshold` | 0.8      | Warn at this % of limit (0-1)       |
+| Setting                            | Default  | What it affects                       |
+| ---------------------------------- | -------- | ------------------------------------- |
+| `mockBalances.current`             | 73566.75 | Account balance shown                 |
+| `transferLimits.daily.used`        | 2000     | How much of daily limit is "used"     |
+| `transferLimits.monthly.used`      | 15000    | How much of monthly limit is "used"   |
+| `transferLimits.perTransaction`    | 6000     | Max single transfer amount            |
+| `loadingDelay`                     | 800      | API response delay in ms              |
+| `features.enableBiometrics`        | true     | Whether biometrics feature is enabled |
+| `mockApi.networkFailureRate`       | 0.05     | Network error probability (0-1)       |
+| `mockApi.transferDelay`            | 1500     | Transfer processing delay in ms       |
+| `validation.limitWarningThreshold` | 0.8      | Warn at this % of limit (0-1)         |
 
 Changes to config take effect on app reload - no rebuild needed.
 

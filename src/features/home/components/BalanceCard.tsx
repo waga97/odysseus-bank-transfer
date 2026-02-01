@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Balance Card
+ * Ryt Bank - Balance Card
  * Large balance display with hide/show toggle
  */
 

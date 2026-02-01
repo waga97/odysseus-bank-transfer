@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Header
+ * Ryt Bank - Transfer Header
  * Header with back button and title - warm theme
  */
 

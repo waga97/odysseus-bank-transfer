@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - API Client
+ * Ryt Bank - API Client
  * Centralized HTTP client configuration
  */
 

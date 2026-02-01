@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Screen Header Component
+ * Ryt Bank - Screen Header Component
  * Reusable header with back button and centered title
  */
 

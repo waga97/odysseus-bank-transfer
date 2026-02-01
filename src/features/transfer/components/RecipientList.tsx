@@ -1,6 +1,6 @@
 /**
- * Odysseus Bank - Recipient List
- * List of recent/favorite recipients - warm theme
+ * Ryt Bank - Recipient List
+ * List of recent recipients - warm theme
  */
 
 import React, { memo, useCallback, useMemo } from 'react';

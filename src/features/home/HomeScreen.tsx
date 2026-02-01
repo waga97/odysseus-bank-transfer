@@ -1,9 +1,9 @@
 /**
- * Odysseus Bank - Home Screen
+ * Ryt Bank - Home Screen
  * Main dashboard with warm cream/orange theme
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -36,28 +36,36 @@ import {
 import {
   SkeletonBalanceCard,
   SkeletonAccountCard,
-  OfflineBanner,
+  Toast,
 } from '@components/ui';
-import { useNetworkStatus } from '@hooks/useNetworkStatus';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const { isOffline } = useNetworkStatus();
-  const setUser = useAuthStore((state) => state.setUser);
-  const {
-    setAccounts,
-    setRecipients,
-    setTransactions,
-    setTransferLimits,
-    setBanks,
-    isLoading,
-    setLoading,
-  } = useAccountStore();
+
+  // Use selectors for reactive state only
+  const isLoading = useAccountStore((state) => state.isLoading);
+
+  // Toast state for error handling
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  // Get stable action references (don't need reactivity)
+  const setUser = useAuthStore.getState().setUser;
 
   // Load initial data
   const loadData = useCallback(async () => {
+    // Get actions from store state (stable references, no re-render triggers)
+    const {
+      setAccounts,
+      setRecipients,
+      setTransactions,
+      setTransferLimits,
+      setBanks,
+      setLoading,
+    } = useAccountStore.getState();
+
     try {
       setLoading(true);
 
@@ -68,11 +76,12 @@ export function HomeScreen() {
           accountApi.getAccounts(),
           recipientApi.getRecipients(),
           userApi.getLimits(),
-          transactionApi.getTransactions({ limit: 5 }),
+          transactionApi.getTransactions({ limit: 20 }),
           bankApi.getBanks(),
         ]);
 
       // Update stores
+      // Note: "Recent" recipients are derived from transactions (single source of truth)
       setUser(user);
       setAccounts(accounts);
       setRecipients(recipients);
@@ -80,20 +89,13 @@ export function HomeScreen() {
       setTransactions(transactions.items);
       setBanks(banks);
     } catch {
-      // Handle error silently for now
-      // In production, show error toast or offline banner
+      // Show error toast
+      setToastMessage('Failed to load data. Pull down to retry.');
+      setToastVisible(true);
     } finally {
       setLoading(false);
     }
-  }, [
-    setUser,
-    setAccounts,
-    setRecipients,
-    setTransferLimits,
-    setTransactions,
-    setBanks,
-    setLoading,
-  ]);
+  }, [setUser]);
 
   useEffect(() => {
     void loadData();
@@ -139,8 +141,13 @@ export function HomeScreen() {
         backgroundColor={palette.primary.main}
       />
 
-      {/* Offline Banner */}
-      <OfflineBanner isOffline={isOffline} />
+      {/* Error Toast */}
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
+        type="error"
+        onDismiss={() => setToastVisible(false)}
+      />
 
       {/* Black Header */}
       <Header onProfilePress={handleSettingsPress} />

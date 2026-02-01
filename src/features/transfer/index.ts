@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Feature Export
+ * Ryt Bank - Transfer Feature Export
  */
 
 export { TransferHubScreen } from './TransferHubScreen';

@@ -1,143 +1,42 @@
 /**
- * Odysseus Bank - Settings Screen
+ * Ryt Bank - Settings Screen
  * User preferences, limits view, and biometric settings
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  Switch,
-  StatusBar,
-  Alert,
-} from 'react-native';
+import React, { useCallback } from 'react';
+import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { Text, Icon, Card, Divider, ScreenHeader } from '@components/ui';
+import { BottomNav } from '@features/home/components';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
-import { commonStyles, iconContainerContentColor } from '@theme/commonStyles';
 import { formatCurrency } from '@utils/currency';
-import { lightHaptic } from '@utils/haptics';
 import { useAccountStore } from '@stores/accountStore';
-import { useUser, useAuthStore } from '@stores/authStore';
+import { useUser } from '@stores/authStore';
 import { appConfig } from '@config/app';
 import type { RootStackScreenProps } from '@navigation/types';
 
 type Props = RootStackScreenProps<'Settings'>;
-
-interface SettingRowProps {
-  icon: string;
-  label: string;
-  value?: string;
-  onPress?: () => void;
-  rightElement?: React.ReactNode;
-  showChevron?: boolean;
-}
-
-function SettingRow({
-  icon,
-  label,
-  value,
-  onPress,
-  rightElement,
-  showChevron = true,
-}: SettingRowProps) {
-  const content = (
-    <View style={styles.settingRow}>
-      <View
-        style={[commonStyles.iconContainer, commonStyles.iconContainerSmall]}
-      >
-        <Icon name={icon} size={20} color={iconContainerContentColor} />
-      </View>
-      <View style={styles.settingContent}>
-        <Text style={styles.settingLabel}>{label}</Text>
-        {value && <Text style={styles.settingValue}>{value}</Text>}
-      </View>
-      {rightElement}
-      {showChevron && !rightElement && (
-        <Icon name="chevron-right" size={20} color={colors.text.tertiary} />
-      )}
-    </View>
-  );
-
-  if (onPress) {
-    return (
-      <Pressable
-        onPress={() => {
-          void lightHaptic();
-          onPress();
-        }}
-        style={({ pressed }) => [pressed && styles.settingPressed]}
-      >
-        {content}
-      </Pressable>
-    );
-  }
-
-  return content;
-}
 
 export function SettingsScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { transferLimits } = useAccountStore();
   const user = useUser();
 
-  // Get biometric state from authStore
-  const biometricAuthEnabled = useAuthStore(
-    (state) => state.biometricAuthEnabled
-  );
-  const setBiometricAuthEnabledStore = useAuthStore(
-    (state) => state.setBiometricAuthEnabled
-  );
-  const [biometricType, setBiometricType] = useState<string>('Biometric');
-
-  // Check biometric type
-  useEffect(() => {
-    const checkBiometric = async () => {
-      try {
-        const types =
-          await LocalAuthentication.supportedAuthenticationTypesAsync();
-        if (
-          types.includes(
-            LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
-          )
-        ) {
-          setBiometricType('Face ID');
-        } else if (
-          types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)
-        ) {
-          setBiometricType('Fingerprint');
-        }
-      } catch {
-        // Use default
+  const handleTabPress = useCallback(
+    (tab: 'home' | 'transfer' | 'analytics' | 'settings') => {
+      if (tab === 'home') {
+        navigation.navigate('Home');
+      } else if (tab === 'transfer') {
+        navigation.navigate('TransferHub');
+      } else if (tab === 'analytics') {
+        navigation.navigate('TransferHistory');
       }
-    };
-    void checkBiometric();
-  }, []);
-
-  const handleBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  const handleBiometricToggle = useCallback(
-    (value: boolean) => {
-      void lightHaptic();
-      setBiometricAuthEnabledStore(value);
+      // settings tab - already here
     },
-    [setBiometricAuthEnabledStore]
+    [navigation]
   );
-
-  const handleChangePin = useCallback(() => {
-    Alert.alert(
-      'Change PIN',
-      'This feature would allow you to change your transaction PIN.',
-      [{ text: 'OK' }]
-    );
-  }, []);
 
   const dailyUsedPercentage = transferLimits
     ? Math.round((transferLimits.daily.used / transferLimits.daily.limit) * 100)
@@ -153,7 +52,7 @@ export function SettingsScreen({ navigation }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
 
-      <ScreenHeader title="Settings" onBack={handleBack} />
+      <ScreenHeader title="Settings" />
 
       <ScrollView
         style={styles.scrollView}
@@ -250,42 +149,11 @@ export function SettingsScreen({ navigation }: Props) {
           </Card>
         </View>
 
-        {/* Security Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Security</Text>
-          <Card style={styles.settingsCard}>
-            <SettingRow
-              icon="shield"
-              label={`${biometricType} Authentication`}
-              showChevron={false}
-              rightElement={
-                <Switch
-                  value={biometricAuthEnabled}
-                  onValueChange={handleBiometricToggle}
-                  trackColor={{
-                    false: colors.border.primary,
-                    true: palette.accent.light,
-                  }}
-                  thumbColor={
-                    biometricAuthEnabled
-                      ? palette.accent.main
-                      : colors.text.tertiary
-                  }
-                />
-              }
-            />
-            <Divider style={styles.settingDivider} />
-            <SettingRow
-              icon="lock"
-              label="Change PIN"
-              onPress={handleChangePin}
-            />
-          </Card>
-        </View>
-
         {/* Version */}
         <Text style={styles.versionText}>Version 1.0.0</Text>
       </ScrollView>
+
+      <BottomNav activeTab="settings" onTabPress={handleTabPress} />
     </View>
   );
 }
@@ -386,35 +254,6 @@ const styles = StyleSheet.create({
   },
   limitDivider: {
     marginVertical: spacing[4],
-  },
-  settingsCard: {
-    padding: 0,
-    overflow: 'hidden',
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing[4],
-    gap: spacing[3],
-  },
-  settingPressed: {
-    backgroundColor: colors.background.tertiary,
-  },
-  settingContent: {
-    flex: 1,
-    gap: 2,
-  },
-  settingLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: colors.text.primary,
-  },
-  settingValue: {
-    fontSize: 13,
-    color: colors.text.tertiary,
-  },
-  settingDivider: {
-    marginLeft: spacing[4] + 36 + spacing[3],
   },
   versionText: {
     fontSize: 12,

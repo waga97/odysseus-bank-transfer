@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Store Exports
+ * Ryt Bank - Store Exports
  */
 
 export {
@@ -16,7 +16,6 @@ export {
   useBalance,
   useRecipients,
   useRecentRecipients,
-  useFavoriteRecipients,
   useTransactions,
   useTransferLimits,
   useBanks,

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Component Size Constants
+ * Ryt Bank - Component Size Constants
  * Centralized dimensions for UI consistency
  */
 

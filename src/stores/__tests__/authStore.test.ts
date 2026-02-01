@@ -1,10 +1,18 @@
 /**
  * Auth Store Tests
- * Testing biometric authentication settings
+ * Testing user authentication state
  */
 
 import { useAuthStore } from '../authStore';
-import { appConfig } from '@config/app';
+import type { User, BiometricStatus } from '@types';
+
+// Mock user for testing
+const mockUser: User = {
+  id: 'user-001',
+  name: 'Test User',
+  email: 'test@example.com',
+  phone: '+60123456789',
+};
 
 // Reset store before each test
 beforeEach(() => {
@@ -14,62 +22,93 @@ beforeEach(() => {
     isLoading: true,
     biometricStatus: null,
     preferredBiometricType: null,
-    biometricAuthEnabled: appConfig.features.enableBiometrics,
   });
 });
 
-describe('authStore biometricAuthEnabled', () => {
-  it('defaults to appConfig.features.enableBiometrics', () => {
+describe('authStore user management', () => {
+  it('starts with no user and unauthenticated', () => {
     const state = useAuthStore.getState();
-    expect(state.biometricAuthEnabled).toBe(
-      appConfig.features.enableBiometrics
-    );
+    expect(state.user).toBeNull();
+    expect(state.isAuthenticated).toBe(false);
   });
 
-  it('can be toggled off', () => {
-    const { setBiometricAuthEnabled } = useAuthStore.getState();
+  it('setUser authenticates and sets user', () => {
+    const { setUser } = useAuthStore.getState();
 
-    setBiometricAuthEnabled(false);
-
-    const state = useAuthStore.getState();
-    expect(state.biometricAuthEnabled).toBe(false);
-  });
-
-  it('can be toggled on', () => {
-    const { setBiometricAuthEnabled } = useAuthStore.getState();
-
-    setBiometricAuthEnabled(false);
-    setBiometricAuthEnabled(true);
+    setUser(mockUser);
 
     const state = useAuthStore.getState();
-    expect(state.biometricAuthEnabled).toBe(true);
+    expect(state.user).toEqual(mockUser);
+    expect(state.isAuthenticated).toBe(true);
+    expect(state.isLoading).toBe(false);
   });
 
-  it('persists state across multiple toggles', () => {
-    const { setBiometricAuthEnabled } = useAuthStore.getState();
+  it('clearUser removes user and deauthenticates', () => {
+    const { setUser, clearUser } = useAuthStore.getState();
 
-    setBiometricAuthEnabled(false);
-    expect(useAuthStore.getState().biometricAuthEnabled).toBe(false);
+    setUser(mockUser);
+    clearUser();
 
-    setBiometricAuthEnabled(true);
-    expect(useAuthStore.getState().biometricAuthEnabled).toBe(true);
-
-    setBiometricAuthEnabled(false);
-    expect(useAuthStore.getState().biometricAuthEnabled).toBe(false);
+    const state = useAuthStore.getState();
+    expect(state.user).toBeNull();
+    expect(state.isAuthenticated).toBe(false);
+    expect(state.isLoading).toBe(false);
   });
 });
 
-describe('authStore selectors', () => {
-  it('useBiometricAuthEnabled selector returns correct value', () => {
-    // Import the selector
-    const { useBiometricAuthEnabled } = require('../authStore');
+describe('authStore biometric status', () => {
+  it('sets biometric status and preferred type', () => {
+    const { setBiometricStatus } = useAuthStore.getState();
 
-    // Set initial state
-    useAuthStore.setState({ biometricAuthEnabled: true });
+    const status: BiometricStatus = {
+      isAvailable: true,
+      isEnrolled: true,
+      supportedTypes: ['faceid', 'fingerprint'],
+      preferredType: 'faceid',
+    };
 
-    // The selector should return true
-    // Note: In actual component testing, we'd use renderHook
+    setBiometricStatus(status);
+
     const state = useAuthStore.getState();
-    expect(state.biometricAuthEnabled).toBe(true);
+    expect(state.biometricStatus).toEqual(status);
+    expect(state.preferredBiometricType).toBe('faceid');
+  });
+
+  it('falls back to first supported type when no preferred type', () => {
+    const { setBiometricStatus } = useAuthStore.getState();
+
+    const status: BiometricStatus = {
+      isAvailable: true,
+      isEnrolled: true,
+      supportedTypes: ['fingerprint'],
+    };
+
+    setBiometricStatus(status);
+
+    const state = useAuthStore.getState();
+    expect(state.preferredBiometricType).toBe('fingerprint');
+  });
+
+  it('setPreferredBiometricType updates preferred type', () => {
+    const { setPreferredBiometricType } = useAuthStore.getState();
+
+    setPreferredBiometricType('fingerprint');
+
+    const state = useAuthStore.getState();
+    expect(state.preferredBiometricType).toBe('fingerprint');
+  });
+});
+
+describe('authStore loading state', () => {
+  it('setLoading updates loading state', () => {
+    const { setLoading } = useAuthStore.getState();
+
+    expect(useAuthStore.getState().isLoading).toBe(true);
+
+    setLoading(false);
+    expect(useAuthStore.getState().isLoading).toBe(false);
+
+    setLoading(true);
+    expect(useAuthStore.getState().isLoading).toBe(true);
   });
 });

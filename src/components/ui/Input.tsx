@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Input Component
+ * Ryt Bank - Input Component
  *
  * Styles:
  * - Inactive: Orange border

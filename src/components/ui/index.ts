@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - UI Components
+ * Ryt Bank - UI Components
  * Centralized export for all base UI components
  */
 
@@ -8,10 +8,7 @@ export { Button } from './Button';
 export { Input } from './Input';
 export { Card } from './Card';
 export { Avatar } from './Avatar';
-export { Chip } from './Chip';
 export { Divider } from './Divider';
-export { IconButton } from './IconButton';
-export { Badge } from './Badge';
 export { Icon } from './Icon';
 export {
   Skeleton,
@@ -20,8 +17,6 @@ export {
   SkeletonBalanceCard,
   SkeletonRecipientCard,
 } from './Skeleton';
-export { OfflineBanner } from './OfflineBanner';
 export { LimitWarning, TransferLimitWarnings } from './LimitWarning';
 export { ScreenHeader } from './ScreenHeader';
-export { PinKeypad } from './PinKeypad';
-export { PinDots } from './PinDots';
+export { Toast } from './Toast';

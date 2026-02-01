@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Settings Feature
+ * Ryt Bank - Settings Feature
  */
 
 export { SettingsScreen } from './SettingsScreen';

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Recent Activity
+ * Ryt Bank - Recent Activity
  * List of recent transactions with warm theme
  */
 

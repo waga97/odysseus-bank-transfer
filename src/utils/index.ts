@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Utility Functions
+ * Ryt Bank - Utility Functions
  */
 
 export * from './currency';

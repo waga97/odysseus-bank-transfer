@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Components Export
+ * Ryt Bank - Transfer Components Export
  */
 
 export { TransferHeader } from './TransferHeader';

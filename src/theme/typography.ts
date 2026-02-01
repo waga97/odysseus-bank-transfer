@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Typography System
+ * Ryt Bank - Typography System
  * Using Manrope font family as per mockup design
  */
 

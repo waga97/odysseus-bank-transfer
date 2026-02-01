@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Bank Selection Screen
+ * Ryt Bank - Bank Selection Screen
  * Choose a bank for new recipient transfer
  */
 

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Navigation Exports
+ * Ryt Bank - Navigation Exports
  */
 
 export { RootNavigator } from './RootNavigator';

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Spacing System
+ * Ryt Bank - Spacing System
  * Consistent spacing scale based on 4px base unit
  */
 

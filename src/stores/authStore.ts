@@ -1,11 +1,10 @@
 /**
- * Odysseus Bank - Auth Store
+ * Ryt Bank - Auth Store
  * Manages user authentication state and biometric preferences
  */
 
 import { create } from 'zustand';
 import type { User, BiometricStatus, BiometricType } from '@types';
-import { appConfig } from '@config/app';
 
 interface AuthState {
   // State
@@ -14,14 +13,12 @@ interface AuthState {
   isLoading: boolean;
   biometricStatus: BiometricStatus | null;
   preferredBiometricType: BiometricType | null;
-  biometricAuthEnabled: boolean;
 
   // Actions
   setUser: (user: User) => void;
   clearUser: () => void;
   setBiometricStatus: (status: BiometricStatus) => void;
   setPreferredBiometricType: (type: BiometricType) => void;
-  setBiometricAuthEnabled: (enabled: boolean) => void;
   setLoading: (loading: boolean) => void;
 }
 
@@ -32,7 +29,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   biometricStatus: null,
   preferredBiometricType: null,
-  biometricAuthEnabled: appConfig.features.enableBiometrics,
 
   // Actions
   setUser: (user) =>
@@ -61,11 +57,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       preferredBiometricType: type,
     }),
 
-  setBiometricAuthEnabled: (enabled) =>
-    set({
-      biometricAuthEnabled: enabled,
-    }),
-
   setLoading: (loading) =>
     set({
       isLoading: loading,
@@ -82,5 +73,3 @@ export const useBiometricStatus = () =>
   useAuthStore((state) => state.biometricStatus);
 export const usePreferredBiometricType = () =>
   useAuthStore((state) => state.preferredBiometricType);
-export const useBiometricAuthEnabled = () =>
-  useAuthStore((state) => state.biometricAuthEnabled);

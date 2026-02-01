@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Color Palette
+ * Ryt Bank - Color Palette
  * Warm cream/orange theme inspired by modern fintech apps
  */
 

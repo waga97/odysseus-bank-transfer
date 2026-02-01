@@ -1,57 +1,32 @@
 /**
- * Odysseus Bank - Biometric Authentication Screen
- * Face ID / Fingerprint / PIN fallback for transaction authorization
+ * Ryt Bank - Biometric Authentication Screen
+ * Uses device authentication (Face ID / Touch ID / Device Passcode)
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  StatusBar,
-  Animated,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, StatusBar, Animated, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as LocalAuthentication from 'expo-local-authentication';
-import {
-  Text,
-  Icon,
-  Button,
-  ScreenHeader,
-  PinKeypad,
-  PinDots,
-} from '@components/ui';
+import { Text, Icon, Button, ScreenHeader } from '@components/ui';
 import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
 import type { RootStackScreenProps } from '@navigation/types';
 import { formatCurrency } from '@utils/currency';
-import { appConfig } from '@config/app';
-import { lightHaptic, errorHaptic, successHaptic } from '@utils/haptics';
-import { useAuthStore } from '@stores/authStore';
 import { useShakeAnimation } from '@hooks/useShakeAnimation';
 import { usePulseAnimation } from '@hooks/usePulseAnimation';
 
 type Props = RootStackScreenProps<'BiometricAuth'>;
 
 type AuthState = 'idle' | 'authenticating' | 'success' | 'failed' | 'cancelled';
-type BiometricType = 'faceid' | 'fingerprint' | 'none';
+type BiometricType = 'faceid' | 'fingerprint' | 'passcode';
 
 export function BiometricAuthScreen({ navigation, route }: Props) {
   const { recipient, amount, note } = route.params;
   const insets = useSafeAreaInsets();
 
-  // Check if biometric is enabled in settings
-  const biometricAuthEnabled = useAuthStore(
-    (state) => state.biometricAuthEnabled
-  );
-
   const [authState, setAuthState] = useState<AuthState>('idle');
-  const [biometricType, setBiometricType] = useState<BiometricType>('none');
-  const [showPinFallback, setShowPinFallback] = useState(!biometricAuthEnabled);
-  const [pin, setPin] = useState('');
-  const [pinError, setPinError] = useState(false);
+  const [biometricType, setBiometricType] = useState<BiometricType>('passcode');
 
   // Animation hooks
   const { shakeAnim, shake } = useShakeAnimation();
@@ -59,61 +34,45 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
     active: authState === 'authenticating',
   });
 
-  // Check biometric availability on mount
+  // Check biometric type on mount
   useEffect(() => {
     void checkBiometricType();
   }, []);
 
-  // Start authentication automatically
+  // Start authentication automatically when biometric type is determined
   useEffect(() => {
-    if (biometricType !== 'none' && authState === 'idle') {
+    if (authState === 'idle') {
       void authenticate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [biometricType]);
 
   const checkBiometricType = async () => {
-    // If biometric is disabled in settings, use PIN
-    if (!biometricAuthEnabled) {
-      setBiometricType('none');
-      setShowPinFallback(true);
-      return;
-    }
-
     try {
       const compatible = await LocalAuthentication.hasHardwareAsync();
-      if (!compatible) {
-        setBiometricType('none');
-        setShowPinFallback(true);
-        return;
-      }
-
       const enrolled = await LocalAuthentication.isEnrolledAsync();
-      if (!enrolled) {
-        setBiometricType('none');
-        setShowPinFallback(true);
-        return;
-      }
 
-      const types =
-        await LocalAuthentication.supportedAuthenticationTypesAsync();
-      if (
-        types.includes(
-          LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
-        )
-      ) {
-        setBiometricType('faceid');
-      } else if (
-        types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)
-      ) {
-        setBiometricType('fingerprint');
+      if (compatible && enrolled) {
+        const types =
+          await LocalAuthentication.supportedAuthenticationTypesAsync();
+        if (
+          types.includes(
+            LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
+          )
+        ) {
+          setBiometricType('faceid');
+        } else if (
+          types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)
+        ) {
+          setBiometricType('fingerprint');
+        } else {
+          setBiometricType('passcode');
+        }
       } else {
-        setBiometricType('none');
-        setShowPinFallback(true);
+        setBiometricType('passcode');
       }
     } catch {
-      setBiometricType('none');
-      setShowPinFallback(true);
+      setBiometricType('passcode');
     }
   };
 
@@ -148,7 +107,7 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
       }
     } catch {
       setAuthState('failed');
-      setShowPinFallback(true);
+      shake();
     }
   };
 
@@ -162,61 +121,32 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePinDigit = useCallback(
-    (digit: string) => {
-      if (pinError) {
-        setPinError(false);
-      }
-
-      if (pin.length < 6) {
-        void lightHaptic();
-        const newPin = pin + digit;
-        setPin(newPin);
-
-        if (newPin.length === 6) {
-          setTimeout(() => {
-            if (newPin === appConfig.pinCode) {
-              void successHaptic();
-              setAuthState('success');
-              setTimeout(navigateToProcessing, 500);
-            } else {
-              void errorHaptic();
-              setPinError(true);
-              shake();
-              setTimeout(() => setPin(''), 300);
-            }
-          }, 300);
-        }
-      }
-    },
-    [pin, pinError, shake, navigateToProcessing]
-  );
-
-  const handlePinDelete = useCallback(() => {
-    setPin((prev) => prev.slice(0, -1));
-  }, []);
-
-  const handleUseBiometric = useCallback(() => {
-    setShowPinFallback(false);
-    setPin('');
-    void authenticate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const getBiometricIcon = () =>
-    biometricType === 'faceid' ? 'eye' : 'shield';
+  const getBiometricIcon = () => {
+    switch (biometricType) {
+      case 'faceid':
+        return 'eye';
+      case 'fingerprint':
+        return 'shield';
+      default:
+        return 'lock';
+    }
+  };
 
   const getBiometricLabel = () => {
-    if (biometricType === 'faceid') {
-      return Platform.OS === 'ios' ? 'Face ID' : 'Face Recognition';
+    switch (biometricType) {
+      case 'faceid':
+        return Platform.OS === 'ios' ? 'Face ID' : 'Face Recognition';
+      case 'fingerprint':
+        return Platform.OS === 'ios' ? 'Touch ID' : 'Fingerprint';
+      default:
+        return 'Passcode';
     }
-    return Platform.OS === 'ios' ? 'Touch ID' : 'Fingerprint';
   };
 
   const getStatusMessage = () => {
     switch (authState) {
       case 'authenticating':
-        return `Verifying ${getBiometricLabel()}...`;
+        return `Verifying with ${getBiometricLabel()}...`;
       case 'success':
         return 'Verified!';
       case 'failed':
@@ -230,67 +160,6 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
 
   const formattedAmount = formatCurrency(amount);
 
-  // PIN Input UI
-  if (showPinFallback) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <StatusBar barStyle="dark-content" />
-        <ScreenHeader title="Enter PIN" onBack={handleBack} />
-
-        <View style={styles.pinContent}>
-          {/* Amount Display */}
-          <View style={styles.amountContainer}>
-            <Text style={styles.labelText}>Authorize transfer of</Text>
-            <Text style={styles.pinAmountText}>{formattedAmount}</Text>
-            <Text style={styles.labelText}>to {recipient.name}</Text>
-          </View>
-
-          {/* PIN Dots */}
-          <View style={styles.pinDotsWrapper}>
-            <PinDots
-              filledCount={pin.length}
-              error={pinError}
-              shakeAnimation={shakeAnim}
-            />
-          </View>
-
-          {/* Error Message */}
-          {pinError && (
-            <Text style={styles.pinErrorText}>
-              Incorrect PIN. Please try again.
-            </Text>
-          )}
-
-          {/* Use Biometric Option - only show if enabled in settings */}
-          {biometricAuthEnabled && biometricType !== 'none' && (
-            <Pressable
-              style={styles.useBiometricButton}
-              onPress={handleUseBiometric}
-            >
-              <Icon
-                name={getBiometricIcon()}
-                size={20}
-                color={palette.accent.main}
-              />
-              <Text style={styles.biometricButtonText}>
-                Use {getBiometricLabel()} instead
-              </Text>
-            </Pressable>
-          )}
-
-          {/* PIN Keypad */}
-          <View style={styles.keypadWrapper}>
-            <PinKeypad
-              onDigitPress={handlePinDigit}
-              onDeletePress={handlePinDelete}
-            />
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  // Biometric Auth UI
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" />
@@ -337,7 +206,7 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
         </Text>
 
         {/* Retry Button */}
-        {authState === 'failed' && (
+        {(authState === 'failed' || authState === 'cancelled') && (
           <Button
             variant="secondary"
             size="medium"
@@ -347,14 +216,6 @@ export function BiometricAuthScreen({ navigation, route }: Props) {
             Try Again
           </Button>
         )}
-
-        {/* Use PIN Option */}
-        <Pressable
-          style={styles.usePinButton}
-          onPress={() => setShowPinFallback(true)}
-        >
-          <Text style={styles.usePinText}>Use PIN instead</Text>
-        </Pressable>
       </View>
 
       {/* Cancel Button */}
@@ -425,59 +286,9 @@ const styles = StyleSheet.create({
   retryButton: {
     marginTop: spacing[2],
   },
-  usePinButton: {
-    paddingVertical: spacing[3],
-    paddingHorizontal: spacing[4],
-  },
-  usePinText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: palette.accent.main,
-  },
   bottomContainer: {
     paddingHorizontal: spacing[4],
     paddingTop: spacing[3],
-  },
-  // PIN styles
-  pinContent: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: spacing[6],
-    paddingTop: spacing[8],
-  },
-  pinAmountText: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.text.primary,
-    lineHeight: 40,
-    marginVertical: spacing[1],
-  },
-  pinDotsWrapper: {
-    marginTop: spacing[8],
-    marginBottom: spacing[4],
-  },
-  pinErrorText: {
-    fontSize: 14,
-    color: palette.error.main,
-    marginTop: spacing[2],
-    textAlign: 'center',
-  },
-  useBiometricButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing[2],
-    paddingVertical: spacing[3],
-    marginBottom: spacing[4],
-  },
-  biometricButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: palette.accent.main,
-  },
-  keypadWrapper: {
-    marginTop: 'auto',
-    marginBottom: spacing[4],
-    alignItems: 'center',
   },
 });
 

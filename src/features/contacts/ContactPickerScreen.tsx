@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Contact Picker Screen
+ * Ryt Bank - Contact Picker Screen
  * Select contacts for DuitNow transfer with phone number - warm theme
  */
 

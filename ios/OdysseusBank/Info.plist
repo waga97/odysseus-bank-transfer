@@ -7,7 +7,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>Odysseus Bank</string>
+    <string>Ryt Bank</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -52,9 +52,9 @@
       <true/>
     </dict>
     <key>NSContactsUsageDescription</key>
-    <string>Allow Odysseus Bank to access your contacts for DuitNow transfers</string>
+    <string>Allow Ryt Bank to access your contacts for DuitNow transfers</string>
     <key>NSFaceIDUsageDescription</key>
-    <string>Odysseus Bank uses Face ID to securely authenticate your transactions</string>
+    <string>Ryt Bank uses Face ID to securely authenticate your transactions</string>
     <key>RCTNewArchEnabled</key>
     <true/>
     <key>UILaunchStoryboardName</key>

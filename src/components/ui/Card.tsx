@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Card Component
+ * Ryt Bank - Card Component
  * Container component with elevation and variants
  */
 

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Quick Actions
+ * Ryt Bank - Quick Actions
  * Modern action buttons with visual hierarchy and subtle shadows
  */
 

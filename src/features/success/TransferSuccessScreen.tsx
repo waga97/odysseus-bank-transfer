@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Success Screen
+ * Ryt Bank - Transfer Success Screen
  * Shows successful transfer confirmation with receipt
  */
 
@@ -85,7 +85,7 @@ export function TransferSuccessScreen({ navigation, route }: Props) {
   const handleShareText = async () => {
     void lightHaptic();
     const message = `
-Transfer Receipt - Odysseus Bank
+Transfer Receipt - Ryt Bank
 
 Amount: ${formatCurrency(transaction.amount)}
 To: ${transaction.recipientName}
@@ -95,7 +95,7 @@ Date: ${formatDate(transaction.date)}
 Reference: ${transaction.reference}
 ${transaction.note ? `Note: ${transaction.note}` : ''}
 
-Thank you for using Odysseus Bank.
+Thank you for using Ryt Bank.
     `.trim();
 
     try {

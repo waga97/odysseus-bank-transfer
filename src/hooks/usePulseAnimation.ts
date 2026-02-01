@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Pulse Animation Hook
+ * Ryt Bank - Pulse Animation Hook
  * Reusable pulsing effect for loading states
  */
 

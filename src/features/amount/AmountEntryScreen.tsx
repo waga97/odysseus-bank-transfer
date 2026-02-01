@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Amount Entry Screen
+ * Ryt Bank - Amount Entry Screen
  * Enter transfer amount with numpad
  */
 

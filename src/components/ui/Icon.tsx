@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Icon Component
+ * Ryt Bank - Icon Component
  * Using Feather icons from @expo/vector-icons
  */
 

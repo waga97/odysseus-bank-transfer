@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Tab Bar
+ * Ryt Bank - Tab Bar
  * Horizontal tabs for transfer methods - warm theme
  */
 

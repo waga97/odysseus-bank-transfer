@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Button Component
+ * Ryt Bank - Button Component
  * Reusable button with variants, sizes, and loading state
  */
 

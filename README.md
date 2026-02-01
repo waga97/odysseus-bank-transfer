@@ -4,17 +4,17 @@ Payment Transfer Module with Biometric Authentication for the Odysseus Bank mobi
 
 ## Overview
 
-This module handles the complete P2P money transfer flow, including recipient selection, amount entry, transfer limits validation, biometric authentication (with PIN fallback), and transaction processing. Built with React Native + Expo, targeting both iOS and Android.
+This module handles the complete P2P money transfer flow, including recipient selection, amount entry, transfer limits validation, biometric authentication, and transaction processing. Built with React Native + Expo, targeting both iOS and Android.
 
 ## Tech Stack
 
-- **React Native 0.81** + **Expo 54** (managed workflow with dev client)
-- **TypeScript** with strict mode enabled
-- **React Navigation 6** - native stack for performant transitions
-- **Zustand** - lightweight state management with shallow selectors
-- **expo-local-authentication** - Face ID / Touch ID / Fingerprint
-- **expo-contacts** - DuitNow contact-based transfers
-- **Jest** + React Native Testing Library for unit tests
+- **React Native 0.81** + **Expo 54** - (managed workflow)
+- **TypeScript**
+- **React Navigation 6**
+- **Zustand** - (state management)
+- **expo-local-authentication** - (Face ID / Touch ID / Fingerprint)
+- **expo-contacts** - (Contact picker)
+- **Jest** - (+ React Native Testing Library for unit tests)
 
 ## Prerequisites
 
@@ -32,40 +32,23 @@ This module handles the complete P2P money transfer flow, including recipient se
 npm install
 ```
 
-### Development Build (Recommended)
-
-Biometrics require a dev build - they wont work in Expo Go due to permission limitations.
-
-**iOS:**
-
-```bash
-npx expo prebuild
-cd ios && pod install && cd ..
-npx expo run:ios --device
-```
-
-**Android:**
-
-```bash
-npx expo prebuild
-npx expo run:android --device
-```
-
-Then start the dev server:
-
-```bash
-npx expo start --dev-client
-```
-
-### Quick Start (Expo Go)
-
-For UI development without biometrics:
+### Run the app
 
 ```bash
 npx expo start
 ```
 
-Note: Biometric auth will fail in Expo Go. The app will automatically fall back to PIN entry (default: `123456`).
+Scan the QR code with Expo Go (iOS/Android) or press `i` for iOS simulator / `a` for Android emulator.
+
+### Native Build (Optional)
+
+For testing with iOS Simulator biometrics or if you need custom native modules:
+
+```bash
+npx expo prebuild
+npx expo run:ios --device    # iOS
+npx expo run:android --device # Android
+```
 
 ## Project Structure
 
@@ -80,7 +63,7 @@ src/
 │   ├── contacts/        # DuitNow contact picker
 │   ├── amount/          # Amount entry with limit validation
 │   ├── review/          # Transfer confirmation
-│   ├── biometric/       # Auth screen (biometric + PIN fallback)
+│   ├── biometric/       # Auth screen (biometric with device passcode fallback)
 │   ├── processing/      # Transaction processing with retry logic
 │   ├── success/         # Success screen with receipt sharing
 │   ├── error/           # Error handling with user-friendly messages
@@ -129,19 +112,18 @@ Errors are mapped to user-friendly messages in the error screen. The app include
 
 - Automatic retry with exponential backoff for transient network failures
 - Specific error screens for each error type (insufficient funds, daily/monthly limits, network error, invalid account)
-- Offline detection with banner notification
+- Network error handling with retry logic
 
 ### Biometric Auth Flow
 
-The BiometricAuthScreen handles multiple auth scenarios:
+The BiometricAuthScreen uses the device's native authentication via `expo-local-authentication`:
 
 1. Primary biometric (Face ID / Touch ID / Fingerprint)
-2. Fallback to 6-digit PIN after biometric failure
-3. Retry mechanisms with attempt counting
-4. Device biometric not available gracefully falls back to PIN
-5. Biometric toggle in Settings to enable/disable
+2. Automatic fallback to device passcode handled by the OS
+3. Retry option if authentication is cancelled
+4. Graceful handling when biometrics are not available
 
-The PIN is configurable in `src/config/app.ts` (default: `123456`).
+The authentication flow leverages `LocalAuthentication.authenticateAsync()` with `disableDeviceFallback: false`, allowing the OS to handle the complete fallback chain (Face ID → Touch ID → Device Passcode) natively.
 
 ### State Management
 
@@ -153,7 +135,7 @@ Using Zustand for its simplicity. Three stores:
 
 Optimized with:
 
-- Computed selectors for derived state (recent recipients, favorites)
+- Computed selectors for derived state (recent recipients)
 - Shallow equality comparisons to prevent unnecessary re-renders
 - Memoized action selectors
 
@@ -242,7 +224,6 @@ All app settings are centralized in `src/config/app.ts`:
 ```typescript
 {
   loadingDelay: 800,                    // Simulated API delay (ms)
-  pinCode: '123456',                    // Fallback PIN for auth
 
   mockBalances: {
     current: 73566.75,                  // Default account balance
@@ -276,29 +257,24 @@ Changing these values affects the whole app - no rebuild needed for config tweak
 
 ## Simulating Different Scenarios
 
-| Scenario          | How to Trigger                                             |
-| ----------------- | ---------------------------------------------------------- |
-| Low balance       | Change `mockBalances.current` in config                    |
-| Near daily limit  | Set `transferLimits.daily.used` close to `limit`           |
-| Biometric failure | Use simulator with no Face ID enrolled, or deny permission |
-| Network error     | Set `mockApi.networkFailureRate` to `1.0` for 100% failure |
-| Invalid account   | Use account number `111122223333`                          |
-| Offline mode      | Toggle airplane mode - the app shows an offline banner     |
+| Scenario          | How to Trigger                                                |
+| ----------------- | ------------------------------------------------------------- |
+| Low balance       | Change `mockBalances.current` in config                       |
+| Near daily limit  | Set `transferLimits.daily.used` close to `limit`              |
+| Biometric failure | Use simulator with no Face ID enrolled, or cancel auth prompt |
+| Network error     | Set `mockApi.networkFailureRate` to `1.0` for 100% failure    |
+| Invalid account   | Use account number `111122223333`                             |
 
 See [TESTCASES.md](./TESTCASES.md) for complete testing guide.
 
 ## Known Limitations
 
-- TransactionDetails screen is a placeholder (not implemented yet)
 - No real API integration - mock only
 - No push notifications
 - Receipt sharing uses native share sheet
 - Tests exclude type-checking (tsconfig excludes test dirs)
 
 ## Troubleshooting
-
-**Biometrics not working in Expo Go:**
-This is expected. Use `npx expo run:ios` or `npx expo run:android` with a dev client.
 
 **iOS Simulator biometrics:**
 Go to Features > Face ID > Enrolled, then Features > Face ID > Matching Face when prompted.
@@ -323,5 +299,5 @@ Delete `ios/Pods` and `ios/Podfile.lock`, then run `pod install` again.
 
 ---
 
-Last updated: Feb 1, 2026
+Last updated: Feb 2, 2026
 Author : Arshad

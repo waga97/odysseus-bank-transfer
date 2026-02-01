@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Theme System
+ * Ryt Bank - Theme System
  * Centralized design tokens and theme configuration
  */
 
@@ -24,13 +24,6 @@ import {
   componentShadows,
   type ShadowKey,
 } from './shadows';
-import {
-  duration,
-  easing,
-  animationConfig,
-  type DurationKey,
-  type EasingKey,
-} from './animations';
 import { componentSizes, type ComponentSizes } from './componentSizes';
 
 /**
@@ -60,11 +53,6 @@ export const theme = {
     ...shadows,
     colored: coloredShadows,
     component: componentShadows,
-  },
-  animation: {
-    duration,
-    easing,
-    config: animationConfig,
   },
   componentSizes,
 } as const;
@@ -102,12 +90,6 @@ export {
   coloredShadows,
   componentShadows,
   type ShadowKey,
-  // Animations
-  duration,
-  easing,
-  animationConfig,
-  type DurationKey,
-  type EasingKey,
   // Component Sizes
   componentSizes,
   type ComponentSizes,

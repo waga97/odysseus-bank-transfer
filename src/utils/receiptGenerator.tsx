@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Receipt Generator
+ * Ryt Bank - Receipt Generator
  * Generates shareable receipt images for transfers
  */
 
@@ -50,7 +50,7 @@ export function ReceiptContent({ data }: ReceiptContentProps) {
         <View style={styles.logoContainer}>
           <Icon name="globe" size={32} color={palette.accent.main} />
         </View>
-        <Text style={styles.bankName}>Odysseus Bank</Text>
+        <Text style={styles.bankName}>Ryt Bank</Text>
       </View>
 
       {/* Success Badge */}
@@ -122,7 +122,7 @@ export function ReceiptContent({ data }: ReceiptContentProps) {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Thank you for using Odysseus Bank</Text>
+        <Text style={styles.footerText}>Thank you for using Ryt Bank</Text>
         <Text style={styles.footerSubtext}>
           This is a computer-generated receipt
         </Text>

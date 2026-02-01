@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Account Store
+ * Ryt Bank - Account Store
  * Manages user account data, recipients, and transactions
  */
 
@@ -34,7 +34,6 @@ interface AccountState {
   setRecipients: (recipients: Recipient[]) => void;
   addRecipient: (recipient: Recipient) => void;
   updateRecipient: (id: string, updates: Partial<Recipient>) => void;
-  toggleFavorite: (id: string) => void;
 
   // Transaction Actions
   setTransactions: (transactions: Transaction[]) => void;
@@ -72,7 +71,7 @@ const initialState = {
   isBalanceHidden: false,
 };
 
-export const useAccountStore = create<AccountState>((set, get) => ({
+export const useAccountStore = create<AccountState>((set) => ({
   ...initialState,
 
   // Account Actions
@@ -109,14 +108,6 @@ export const useAccountStore = create<AccountState>((set, get) => ({
         r.id === id ? { ...r, ...updates } : r
       ),
     })),
-
-  toggleFavorite: (id) => {
-    const { recipients } = get();
-    const recipient = recipients.find((r) => r.id === id);
-    if (recipient) {
-      get().updateRecipient(id, { isFavorite: !recipient.isFavorite });
-    }
-  },
 
   // Transaction Actions
   setTransactions: (transactions) => set({ transactions }),
@@ -225,31 +216,45 @@ export const useBalance = () =>
 export const useRecipients = () => useAccountStore((state) => state.recipients);
 
 /**
- * Computed selector: Returns recipients sorted by last transfer date (most recent first)
- * Limited to 10 items for performance
+ * Computed selector: Returns recent transfer recipients derived from transaction history
+ * This is the single source of truth - no need to manually sync lastTransferDate
+ * Returns unique recipients sorted by most recent transaction, limited to 10
  */
 export const useRecentRecipients = () =>
   useAccountStore((state) => {
-    const sorted = [...state.recipients].sort((a, b) => {
-      if (!a.lastTransferDate) {
-        return 1;
+    const seen = new Set<string>();
+    const recentRecipients: Recipient[] = [];
+
+    // Transactions are already sorted by date (newest first from addTransaction)
+    for (const tx of state.transactions) {
+      // Only include completed outgoing transfers
+      if (tx.type !== 'transfer' || tx.status !== 'completed') {
+        continue;
       }
-      if (!b.lastTransferDate) {
-        return -1;
+
+      const recipientId = tx.recipient.id;
+      if (seen.has(recipientId)) {
+        continue;
       }
-      return (
-        new Date(b.lastTransferDate).getTime() -
-        new Date(a.lastTransferDate).getTime()
-      );
-    });
-    return sorted.slice(0, 10);
+      seen.add(recipientId);
+
+      // Build recipient from transaction data
+      recentRecipients.push({
+        id: recipientId,
+        name: tx.recipient.name,
+        accountNumber: tx.recipient.accountNumber,
+        phoneNumber: tx.recipient.phoneNumber,
+        bankName: tx.recipient.bankName,
+      });
+
+      if (recentRecipients.length >= 10) {
+        break;
+      }
+    }
+
+    return recentRecipients;
   });
 
-/**
- * Computed selector: Returns only favorite recipients
- */
-export const useFavoriteRecipients = () =>
-  useAccountStore((state) => state.recipients.filter((r) => r.isFavorite));
 export const useTransactions = () =>
   useAccountStore((state) => state.transactions);
 export const useTransferLimits = () =>

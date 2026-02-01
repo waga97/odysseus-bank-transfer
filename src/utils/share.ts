@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Share Utilities
+ * Ryt Bank - Share Utilities
  * Handles sharing receipts and other content
  */
 

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Review Screen
+ * Ryt Bank - Transfer Review Screen
  * Review and confirm transfer details before biometric auth
  */
 
@@ -132,7 +132,7 @@ export function TransferReviewScreen({ navigation, route }: Props) {
             </View>
             <View style={styles.accountInfo}>
               <Text variant="titleSmall" color="primary">
-                Odysseus Bank
+                Ryt Bank
               </Text>
               <Text variant="caption" color="tertiary">
                 {defaultAccount?.type === 'savings' ? 'Savings' : 'Current'}{' '}

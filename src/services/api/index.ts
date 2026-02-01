@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - API Exports
+ * Ryt Bank - API Exports
  */
 
 export { apiClient, ApiClientError } from './client';

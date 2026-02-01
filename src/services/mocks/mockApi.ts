@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Mock API
+ * Ryt Bank - Mock API
  * Simple fetch mock for React Native (no MSW dependency)
  */
 
@@ -28,6 +28,24 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const apiDelay = () => delay(appConfig.loadingDelay);
 
 /**
+ * Build current transfer limits state - single source of truth
+ * Used by both validateTransfer and executeTransfer
+ */
+const buildCurrentLimits = () => ({
+  daily: {
+    limit: mockTransferLimits.daily.limit,
+    used: dailyUsed,
+    remaining: mockTransferLimits.daily.limit - dailyUsed,
+  },
+  monthly: {
+    limit: mockTransferLimits.monthly.limit,
+    used: monthlyUsed,
+    remaining: mockTransferLimits.monthly.limit - monthlyUsed,
+  },
+  perTransaction: mockTransferLimits.perTransaction,
+});
+
+/**
  * Mock API functions
  */
 export const mockApi = {
@@ -48,19 +66,7 @@ export const mockApi = {
   // Limits
   async getLimits() {
     await apiDelay();
-    return {
-      ...mockTransferLimits,
-      daily: {
-        ...mockTransferLimits.daily,
-        used: dailyUsed,
-        remaining: mockTransferLimits.daily.limit - dailyUsed,
-      },
-      monthly: {
-        ...mockTransferLimits.monthly,
-        used: monthlyUsed,
-        remaining: mockTransferLimits.monthly.limit - monthlyUsed,
-      },
-    };
+    return buildCurrentLimits();
   },
 
   // Recipients
@@ -89,7 +95,6 @@ export const mockApi = {
       accountNumber: params.accountNumber,
       phoneNumber: params.phoneNumber,
       bankName: 'Maybank',
-      isFavorite: false,
     };
   },
 
@@ -102,26 +107,10 @@ export const mockApi = {
   // Transfer validation - uses shared validation function (DRY)
   async validateTransfer(request: TransferRequest) {
     await apiDelay();
-
-    // Build current limits state
-    const limits = {
-      daily: {
-        limit: mockTransferLimits.daily.limit,
-        used: dailyUsed,
-        remaining: mockTransferLimits.daily.limit - dailyUsed,
-      },
-      monthly: {
-        limit: mockTransferLimits.monthly.limit,
-        used: monthlyUsed,
-        remaining: mockTransferLimits.monthly.limit - monthlyUsed,
-      },
-      perTransaction: mockTransferLimits.perTransaction,
-    };
-
     return validateTransfer({
       amount: request.amount,
       balance: currentBalance,
-      limits,
+      limits: buildCurrentLimits(),
     });
   },
 
@@ -133,10 +122,6 @@ export const mockApi = {
 
     // Test account number for invalid account error
     // 111122223333 = invalid account (can't trigger naturally)
-    // Other errors can be triggered naturally:
-    // - Insufficient funds: transfer more than balance
-    // - Daily limit: transfer until limit reached
-    // - Network error: use airplane mode
     if (request.recipientAccountNumber === '111122223333') {
       throw new Error('INVALID_ACCOUNT');
     }
@@ -146,19 +131,33 @@ export const mockApi = {
       throw new Error('NETWORK_ERROR');
     }
 
-    // Check balance
-    if (request.amount > currentBalance) {
-      throw new Error('INSUFFICIENT_FUNDS');
-    }
+    // Use shared validation function to ensure consistency with UI validation
+    const validation = validateTransfer({
+      amount: request.amount,
+      balance: currentBalance,
+      limits: buildCurrentLimits(),
+    });
 
-    // Check daily limit
-    if (request.amount > mockTransferLimits.daily.limit - dailyUsed) {
-      throw new Error('DAILY_LIMIT_EXCEEDED');
-    }
+    if (!validation.isValid) {
+      // Map validation errors to specific error codes
+      // Check all errors to find the most relevant one (priority order)
+      const errorMessages = validation.errors.map((e) => e.message);
+      const allMessages = errorMessages.join(' ');
 
-    // Check monthly limit
-    if (request.amount > mockTransferLimits.monthly.limit - monthlyUsed) {
-      throw new Error('MONTHLY_LIMIT_EXCEEDED');
+      if (allMessages.includes('Insufficient funds')) {
+        throw new Error('INSUFFICIENT_FUNDS');
+      }
+      if (allMessages.includes('daily')) {
+        throw new Error('DAILY_LIMIT_EXCEEDED');
+      }
+      if (allMessages.includes('monthly')) {
+        throw new Error('MONTHLY_LIMIT_EXCEEDED');
+      }
+      if (allMessages.includes('per-transaction')) {
+        throw new Error('PER_TRANSACTION_LIMIT_EXCEEDED');
+      }
+      // amount <= 0 returns isValid: false with empty errors
+      throw new Error('INVALID_AMOUNT');
     }
 
     // Execute transfer

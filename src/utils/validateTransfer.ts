@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Validation
+ * Ryt Bank - Transfer Validation
  * Single source of truth for transfer validation logic
  * Used by both frontend (instant UX) and backend (final check)
  */

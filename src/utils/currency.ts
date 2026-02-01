@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Currency Formatting Utilities
+ * Ryt Bank - Currency Formatting Utilities
  * Universal functions for consistent number and currency formatting
  */
 

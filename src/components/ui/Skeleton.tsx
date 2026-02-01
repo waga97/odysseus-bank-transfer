@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Skeleton Loader Component
+ * Ryt Bank - Skeleton Loader Component
  * Animated placeholder for loading states
  */
 

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Config Exports
+ * Ryt Bank - Config Exports
  */
 
 export { appConfig } from './app';

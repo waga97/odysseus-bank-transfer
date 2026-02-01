@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Haptic Feedback Utilities
+ * Ryt Bank - Haptic Feedback Utilities
  * Provides consistent haptic feedback across the app
  */
 

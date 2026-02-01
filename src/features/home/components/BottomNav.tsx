@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Bottom Navigation
+ * Ryt Bank - Bottom Navigation
  * Modern minimal bottom tab bar
  */
 
@@ -11,7 +11,7 @@ import { colors, palette } from '@theme/colors';
 import { spacing } from '@theme/spacing';
 import { borderRadius } from '@theme/borderRadius';
 
-type TabId = 'home' | 'cards' | 'transfer' | 'analytics' | 'settings';
+type TabId = 'home' | 'transfer' | 'analytics' | 'settings';
 
 interface BottomNavProps {
   activeTab?: TabId;
@@ -26,8 +26,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: 'home', iconName: 'home', label: 'Home' },
-  { id: 'cards', iconName: 'credit-card', label: 'Cards' },
-  { id: 'transfer', iconName: 'send', label: 'Send' },
+  { id: 'transfer', iconName: 'arrow-up-right', label: 'Send' },
   { id: 'analytics', iconName: 'pie-chart', label: 'Stats' },
   { id: 'settings', iconName: 'user', label: 'Profile' },
 ];

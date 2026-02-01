@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Text Component
+ * Ryt Bank - Text Component
  * Typography component with pre-defined variants
  */
 

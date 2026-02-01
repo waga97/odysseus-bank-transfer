@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Recipient Feature Export
+ * Ryt Bank - Recipient Feature Export
  */
 
 export { RecipientDetailsScreen } from './RecipientDetailsScreen';

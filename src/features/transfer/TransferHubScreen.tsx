@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Hub Screen
+ * Ryt Bank - Transfer Hub Screen
  * Main transfer screen with tabs and recipient selection - warm theme
  */
 
@@ -36,13 +36,14 @@ export function TransferHubScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Memoize filtered recipients to prevent recalculation on every render
+  // Limit to 5 most recent for each category
   const bankRecipients = useMemo(
-    () => recentRecipients.filter((r) => r.accountNumber),
+    () => recentRecipients.filter((r) => r.accountNumber).slice(0, 5),
     [recentRecipients]
   );
 
   const mobileRecipients = useMemo(
-    () => recentRecipients.filter((r) => r.phoneNumber),
+    () => recentRecipients.filter((r) => r.phoneNumber).slice(0, 5),
     [recentRecipients]
   );
 

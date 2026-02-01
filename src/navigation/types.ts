@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Navigation Types
+ * Ryt Bank - Navigation Types
  * Type definitions for all navigation routes and params
  */
 
@@ -85,6 +85,8 @@ export type RootStackParamList = {
       | 'network_error'
       | 'daily_limit'
       | 'monthly_limit'
+      | 'per_transaction_limit'
+      | 'invalid_amount'
       | 'recipient_not_found'
       | 'duplicate_transfer'
       | 'generic';
@@ -94,9 +96,6 @@ export type RootStackParamList = {
 
   // History
   TransferHistory: undefined;
-  TransactionDetails: {
-    transactionId: string;
-  };
 
   // Settings
   Settings: undefined;

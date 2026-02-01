@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Divider Component
+ * Ryt Bank - Divider Component
  * Horizontal or vertical separator line
  */
 

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - API Endpoints
+ * Ryt Bank - API Endpoints
  * Uses mock API directly for development
  */
 

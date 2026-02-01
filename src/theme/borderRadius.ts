@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Border Radius System
+ * Ryt Bank - Border Radius System
  * Consistent rounded corners as per mockup design
  */
 

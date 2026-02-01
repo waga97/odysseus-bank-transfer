@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Transfer Limit Warning
+ * Ryt Bank - Transfer Limit Warning
  * Displays warning when transfer amount approaches or exceeds limits
  * Uses shared threshold from validateTransfer for consistency
  */

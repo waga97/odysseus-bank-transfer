@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - App Configuration
+ * Ryt Bank - App Configuration
  * Centralized configuration for app-wide settings
  */
 
@@ -28,12 +28,6 @@ export const appConfig = {
     current: 73566.75,
     investment: 25000.0,
   },
-
-  /**
-   * PIN code for fallback authentication
-   * Used when biometric auth fails
-   */
-  pinCode: '123456',
 
   /**
    * Transfer limits - these control actual transfer validation
@@ -95,7 +89,6 @@ export const appConfig = {
   features: {
     enableHaptics: true,
     enableBiometrics: true,
-    enableOfflineMode: true,
   },
 } as const;
 

@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Account Cards
+ * Ryt Bank - Account Cards
  * Horizontal scrollable account cards
  */
 

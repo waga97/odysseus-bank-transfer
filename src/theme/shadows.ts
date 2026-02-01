@@ -1,5 +1,5 @@
 /**
- * Odysseus Bank - Shadow System
+ * Ryt Bank - Shadow System
  * Cross-platform shadow definitions
  */
 
