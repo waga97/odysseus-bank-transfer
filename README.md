@@ -8,7 +8,7 @@ Handles the full P2P transfer flow - pick recipient, enter amount, validate limi
 
 ## Demo
 
-https://github.com/waga97/odysseus-bank-transfer/raw/main/demo.mp4
+[![Demo Video](https://img.youtube.com/vi/YcKS5emzYGw/maxresdefault.jpg)](https://www.youtube.com/watch?v=YcKS5emzYGw)
 
 ## Table of Contents
 
