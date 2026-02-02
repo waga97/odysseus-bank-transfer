@@ -6,8 +6,13 @@ Payment transfer module with biometric auth for Odysseus Bank mobile app.
 
 Handles the full P2P transfer flow - pick recipient, enter amount, validate limits, authenticate with biometrics, process the transaction. Built with React Native + Expo for iOS and Android.
 
+## Demo
+
+[demo.mov](./demo.mov)
+
 ## Table of Contents
 
+- [Demo](#demo)
 - [Tech Stack](#tech-stack)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
