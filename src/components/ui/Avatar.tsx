@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Avatar Component
- * User profile picture with fallback initials
- */
-
 import React from 'react';
 import {
   View,

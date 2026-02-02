@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Pulse Animation Hook
- * Reusable pulsing effect for loading states
- */
-
 import { useEffect, useRef } from 'react';
 import { Animated } from 'react-native';
 

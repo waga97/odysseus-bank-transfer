@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Button Component
- * Reusable button with variants, sizes, and loading state
- */
-
 import React, { useCallback } from 'react';
 import {
   Pressable,

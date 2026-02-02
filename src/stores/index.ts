@@ -1,7 +1,3 @@
-/**
- * Ryt Bank - Store Exports
- */
-
 export {
   useAuthStore,
   useUser,

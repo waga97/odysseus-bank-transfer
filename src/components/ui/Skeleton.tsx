@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Skeleton Loader Component
- * Animated placeholder for loading states
- */
-
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, type ViewStyle } from 'react-native';
 import { colors } from '@theme/colors';

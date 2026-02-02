@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Biometric Authentication Screen
- * Uses device authentication (Face ID / Touch ID / Device Passcode)
- */
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, StatusBar, Animated, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

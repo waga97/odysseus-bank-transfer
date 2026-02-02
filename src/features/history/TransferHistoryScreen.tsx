@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Transfer History Screen
- * List of past transactions with pagination (5 per page) and pull-to-refresh
- */
-
 import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import {
   View,

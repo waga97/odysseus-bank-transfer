@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Home Screen
- * Main dashboard with warm cream/orange theme
- */
-
 import React, { useEffect, useCallback, useState } from 'react';
 import {
   View,

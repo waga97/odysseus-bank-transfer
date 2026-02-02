@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Settings Screen
- * User preferences, limits view, and biometric settings
- */
-
 import React, { useCallback } from 'react';
 import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Quick Actions
- * Modern action buttons with visual hierarchy and subtle shadows
- */
-
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Icon } from '@components/ui';

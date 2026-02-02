@@ -1,9 +1,4 @@
 /**
- * Ryt Bank - Currency Formatting Utilities
- * Universal functions for consistent number and currency formatting
- */
-
-/**
  * Format a number with thousand separators
  * @param value - The number to format
  * @param decimals - Number of decimal places (default: 0)

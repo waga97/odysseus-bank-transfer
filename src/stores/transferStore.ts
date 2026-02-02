@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Transfer Store
- * Manages the current transfer flow state
- */
-
 import { create } from 'zustand';
 import type { Recipient, Bank } from '@types';
 
@@ -80,9 +75,6 @@ export const useTransferStore = create<TransferFlowState>((set) => ({
   reset: () => set(initialState),
 }));
 
-/**
- * Selector hooks
- */
 export const useSelectedRecipient = () =>
   useTransferStore((state) => state.selectedRecipient);
 export const useSelectedBank = () =>

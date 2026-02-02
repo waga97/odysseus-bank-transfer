@@ -1,13 +1,3 @@
-/**
- * Ryt Bank - Input Component
- *
- * Styles:
- * - Inactive: Orange border
- * - Active/Focused: Black border
- * - Background: Always white
- * - Text color: Primary
- */
-
 import React, { useState, forwardRef } from 'react';
 import {
   View,

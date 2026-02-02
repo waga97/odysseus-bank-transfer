@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Navigation Types
- * Type definitions for all navigation routes and params
- */
-
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 /**
@@ -91,7 +86,23 @@ export type RootStackParamList = {
       | 'duplicate_transfer'
       | 'generic';
     errorMessage?: string;
-    details?: Record<string, unknown>;
+    /**
+     * Transfer context for error recovery navigation.
+     * Allows the error screen to navigate back to the correct screen
+     * with proper params instead of using fragile pop(N) calls.
+     */
+    transferContext?: {
+      recipient: {
+        id: string;
+        name: string;
+        accountNumber?: string;
+        phoneNumber?: string;
+        bankName?: string;
+        avatar?: string;
+      };
+      amount: number;
+      note?: string;
+    };
   };
 
   // History

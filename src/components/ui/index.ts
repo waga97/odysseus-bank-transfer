@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - UI Components
- * Centralized export for all base UI components
- */
-
 export { Text } from './Text';
 export { Button } from './Button';
 export { Input } from './Input';

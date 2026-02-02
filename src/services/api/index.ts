@@ -1,7 +1,3 @@
-/**
- * Ryt Bank - API Exports
- */
-
 export { apiClient, ApiClientError } from './client';
 export {
   userApi,

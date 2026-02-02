@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Shadow System
- * Cross-platform shadow definitions
- */
-
 import type { ViewStyle } from 'react-native';
 import { Platform } from 'react-native';
 

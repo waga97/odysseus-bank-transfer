@@ -1,11 +1,3 @@
-/**
- * Ryt Bank - Data Models
- * Type definitions for all data entities
- */
-
-/**
- * User / Account Types
- */
 export interface User {
   id: string;
   name: string;
@@ -38,9 +30,6 @@ export interface TransferLimits {
   perTransaction: number;
 }
 
-/**
- * Recipient Types
- */
 export interface Recipient {
   id: string;
   name: string;
@@ -59,9 +48,6 @@ export interface Bank {
   isPopular: boolean;
 }
 
-/**
- * Transaction Types
- */
 export type TransactionStatus =
   | 'pending'
   | 'processing'
@@ -93,9 +79,6 @@ export interface Transaction {
   completedAt?: string;
 }
 
-/**
- * Transfer Request Types
- */
 export interface TransferRequest {
   recipientId?: string;
   recipientAccountNumber?: string;
@@ -118,9 +101,6 @@ export interface TransferValidationResult {
   }[];
 }
 
-/**
- * Biometric Types
- */
 export type BiometricType = 'fingerprint' | 'facial' | 'iris';
 
 export interface BiometricStatus {
@@ -130,9 +110,6 @@ export interface BiometricStatus {
   preferredType?: BiometricType;
 }
 
-/**
- * API Response Types
- */
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;

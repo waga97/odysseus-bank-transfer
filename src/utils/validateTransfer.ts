@@ -1,9 +1,3 @@
-/**
- * Ryt Bank - Transfer Validation
- * Single source of truth for transfer validation logic
- * Used by both frontend (instant UX) and backend (final check)
- */
-
 import { appConfig } from '@config/app';
 
 export interface TransferLimits {
@@ -48,32 +42,7 @@ export interface ValidateTransferParams {
  */
 export const WARNING_THRESHOLD = appConfig.validation.limitWarningThreshold;
 
-/**
- * Validates a transfer amount against balance and various limits.
- *
- * This is a pure function with no side effects, used by both frontend (for instant
- * UX feedback) and backend/mock API (for final validation before execution).
- *
- * @param params - Validation parameters
- * @param params.amount - The transfer amount to validate
- * @param params.balance - Current account balance
- * @param params.limits - Transfer limits (daily, monthly, per-transaction)
- *
- * @returns ValidationResult containing:
- *   - isValid: true if transfer can proceed
- *   - errors: Array of blocking validation errors
- *   - warnings: Array of non-blocking warnings (e.g., approaching limits)
- *
- * @example
- * const result = validateTransfer({
- *   amount: 1000,
- *   balance: 5000,
- *   limits: { daily: { limit: 10000, used: 8000, remaining: 2000 }, ... }
- * });
- * if (!result.isValid) {
- *   console.log(result.errors[0].message);
- * }
- */
+// Used by both frontend (instant UX) and mock API (final validation)
 export function validateTransfer({
   amount,
   balance,
@@ -148,13 +117,6 @@ export function validateTransfer({
   };
 }
 
-/**
- * Extracts the first error message from a validation result.
- * Useful for simple UI displays where only one error needs to be shown.
- *
- * @param result - The validation result from validateTransfer()
- * @returns The first error message, or null if no errors
- */
 export function getFirstErrorMessage(result: ValidationResult): string | null {
   return result.errors[0]?.message ?? null;
 }
@@ -162,16 +124,6 @@ export function getFirstErrorMessage(result: ValidationResult): string | null {
 /**
  * Checks if a transfer amount would trigger a warning for a cumulative limit.
  * Used by UI components (like LimitWarning) to show consistent warnings.
- *
- * @param amount - The transfer amount
- * @param used - Current usage of the limit
- * @param limit - Maximum limit value
- * @returns true if the new usage would exceed WARNING_THRESHOLD (80%) of the limit
- *
- * @example
- * // Daily limit is 10000, already used 7000
- * shouldWarnForLimit(1500, 7000, 10000); // true (8500 >= 8000)
- * shouldWarnForLimit(500, 7000, 10000);  // false (7500 < 8000)
  */
 export function shouldWarnForLimit(
   amount: number,
@@ -185,13 +137,7 @@ export function shouldWarnForLimit(
   return newUsed >= limit * WARNING_THRESHOLD;
 }
 
-/**
- * Simple check if an amount exceeds the remaining limit.
- *
- * @param amount - The transfer amount to check
- * @param remaining - The remaining limit available
- * @returns true if amount exceeds remaining limit
- */
+// Simple check if an amount exceeds the remaining limit.
 export function exceedsLimit(amount: number, remaining: number): boolean {
   return amount > remaining;
 }

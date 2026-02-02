@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Home Header
- * Black header with logo, greeting, and profile avatar
- */
-
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

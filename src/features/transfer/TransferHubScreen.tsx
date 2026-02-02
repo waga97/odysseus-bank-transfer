@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Transfer Hub Screen
- * Main transfer screen with tabs and recipient selection - warm theme
- */
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';

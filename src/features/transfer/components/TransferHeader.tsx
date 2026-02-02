@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Transfer Header
- * Header with back button and title - warm theme
- */
-
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

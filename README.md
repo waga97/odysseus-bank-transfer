@@ -1,10 +1,26 @@
 # Odysseus Bank
 
-Payment Transfer Module with Biometric Authentication for the Odysseus Bank mobile app.
+Payment transfer module with biometric auth for Odysseus Bank mobile app.
 
 ## Overview
 
-This module handles the complete P2P money transfer flow, including recipient selection, amount entry, transfer limits validation, biometric authentication, and transaction processing. Built with React Native + Expo, targeting both iOS and Android.
+Handles the full P2P transfer flow - pick recipient, enter amount, validate limits, authenticate with biometrics, process the transaction. Built with React Native + Expo for iOS and Android.
+
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Architecture Decisions](#architecture-decisions)
+- [Testing](#testing)
+- [Linting & Formatting](#linting--formatting)
+- [Configuration](#configuration)
+- [Simulating Different Scenarios](#simulating-different-scenarios)
+- [Challenges & Retrospective](#challenges--retrospective)
+- [Known Limitations](#known-limitations)
+- [Troubleshooting](#troubleshooting)
+- [Scripts Reference](#scripts-reference)
 
 ## Tech Stack
 
@@ -40,7 +56,7 @@ npx expo start
 
 Scan the QR code with Expo Go (iOS/Android) or press `i` for iOS simulator / `a` for Android emulator.
 
-### Native Build (Optional)
+### Native Build (Recommended)
 
 For testing with iOS Simulator biometrics or if you need custom native modules:
 
@@ -54,31 +70,31 @@ npx expo run:android --device # Android
 
 ```
 src/
-├── components/ui/       # Reusable UI components (Button, Input, Avatar, etc.)
-├── features/            # Feature-based screen modules
-│   ├── home/            # Dashboard with balance, quick actions
-│   ├── transfer/        # Transfer hub (recipient selection)
-│   ├── bank-selection/  # Bank picker for inter-bank transfers
+├── components/ui/       # Shared UI (Button, Input, Avatar, etc)
+├── features/            # Screen modules by feature
+│   ├── home/            # Dashboard, balance, quick actions
+│   ├── transfer/        # Transfer hub, recipient selection
+│   ├── bank-selection/  # Bank picker
 │   ├── recipient/       # Manual account entry
 │   ├── contacts/        # DuitNow contact picker
-│   ├── amount/          # Amount entry with limit validation
-│   ├── review/          # Transfer confirmation
-│   ├── biometric/       # Auth screen (biometric with device passcode fallback)
-│   ├── processing/      # Transaction processing with retry logic
-│   ├── success/         # Success screen with receipt sharing
-│   ├── error/           # Error handling with user-friendly messages
-│   ├── history/         # Paginated transaction history
-│   └── settings/        # App settings and limits display
-├── navigation/          # React Navigation config
-├── stores/              # Zustand stores (auth, account, transfer)
+│   ├── amount/          # Amount entry + limit validation
+│   ├── review/          # Confirm screen
+│   ├── biometric/       # Auth screen
+│   ├── processing/      # Processing with retry
+│   ├── success/         # Success + receipt sharing
+│   ├── error/           # Error handling
+│   ├── history/         # Transaction history
+│   └── settings/        # Settings + limits display
+├── navigation/          # React Navigation setup
+├── stores/              # Zustand stores
 ├── services/
-│   ├── api/             # API client setup (ready for real backend)
-│   └── mocks/           # Mock API with configurable delays and failures
-├── hooks/               # Custom React hooks (network status, animations)
-├── utils/               # Helper functions (currency, validation, retry)
-├── theme/               # Design tokens (colors, typography, spacing)
-├── types/               # TypeScript interfaces and types
-└── config/              # Centralized app configuration
+│   ├── api/             # API client (ready for real backend)
+│   └── mocks/           # Mock API with delays and failures
+├── hooks/               # Custom hooks
+├── utils/               # Helpers (currency, validation, retry)
+├── theme/               # Design tokens
+├── types/               # TypeScript types
+└── config/              # App config
 ```
 
 ## Architecture Decisions
@@ -87,17 +103,17 @@ src/
 
 Each feature is self-contained with its own screen components. Shared UI lives in `components/ui/`. This keeps features isolated and makes it easy to find related code.
 
-### Single Source of Truth for Configuration
+### Config as Single Source of Truth
 
-All configurable values live in `src/config/app.ts`. This includes mock data, transfer limits, API delays, validation thresholds, and feature flags. The mock API and validation logic pull from this config, ensuring consistency across the app.
+Everything configurable lives in `src/config/app.ts` - mock data, limits, delays, feature flags. Both the mock API and validation logic read from here so they stay in sync.
 
 ### Mock-First Development
 
-The app runs entirely on mock data via `services/mocks/`. The mock API simulates network delays, random failures, and can return different account states for testing. To swap to a real backend, update the imports in the API endpoints.
+App runs on mock data via `services/mocks/`. Simulates network delays, random failures, different account states. To swap to real backend later, just update the API imports.
 
 ### Transfer Validation
 
-All transfer validation logic lives in `utils/validateTransfer.ts` - single source of truth used by both the mock API and UI. This prevents validation drift between frontend and backend.
+All validation is in `utils/validateTransfer.ts`. Used by both UI (immediate feedback) and mock API (server-side check). Keeps them from drifting apart.
 
 Validation checks:
 
@@ -114,23 +130,21 @@ Errors are mapped to user-friendly messages in the error screen. The app include
 - Specific error screens for each error type (insufficient funds, daily/monthly limits, network error, invalid account)
 - Network error handling with retry logic
 
-### Biometric Auth Flow
+### Biometric Flow
 
-The BiometricAuthScreen uses the device's native authentication via `expo-local-authentication`:
+Uses `expo-local-authentication`:
 
-1. Primary biometric (Face ID / Touch ID / Fingerprint)
-2. Automatic fallback to device passcode handled by the OS
-3. Retry option if authentication is cancelled
-4. Graceful handling when biometrics are not available
-
-The authentication flow leverages `LocalAuthentication.authenticateAsync()` with `disableDeviceFallback: false`, allowing the OS to handle the complete fallback chain (Face ID → Touch ID → Device Passcode) natively.
+1. Try biometric first (Face ID / Touch ID / Fingerprint)
+2. OS handles fallback to device passcode
+3. Can retry if cancelled
+4. Works gracefully when biometrics unavailable
 
 ### State Management
 
-Using Zustand for its simplicity. Three stores:
+Zustand with 3 stores:
 
-- `authStore` - user auth state, biometric preferences
-- `accountStore` - accounts, recipients, transactions, transfer limits
+- `authStore` - login state, biometric prefs
+- `accountStore` - accounts, recipients, transactions, limits
 - `transferStore` - current transfer in progress
 
 Optimized with:
@@ -182,11 +196,11 @@ npm run test:coverage
 
 Tests cover:
 
-- Transfer validation logic (25+ test cases)
+- Transfer validation (25+ cases)
 - Currency formatting
-- Mock API behavior (limits, transactions, error scenarios)
-- Store state management (auth, accounts)
-- Retry utility with exponential backoff
+- Mock API behavior
+- Store state
+- Retry logic
 
 ### Manual Testing
 
@@ -267,6 +281,37 @@ Changing these values affects the whole app - no rebuild needed for config tweak
 
 See [TESTCASES.md](./TESTCASES.md) for complete testing guide.
 
+## Challenges & Retrospective
+
+### Challenges
+
+**Navigation after errors** - When transfer fails during processing, user needs to go back and retry. But ProcessingScreen uses `replace()` to get to error screen, which breaks the back stack. Had to use `reset()` to rebuild a clean nav stack.
+
+**Keeping validation DRY** - Validation needed to work in both UI (immediate feedback) and mock API (server-side). Ended up extracting everything to `utils/validateTransfer.ts` so both use the same logic.
+
+**Recent recipients** - First tried storing as separate list but it kept getting out of sync with transaction history. Refactored to just derive it from transactions in the selector. Way simpler.
+
+### What went well
+
+- Config-driven testing made it easy to test different scenarios
+- Error recovery UX with exponential backoff works nicely
+- First time using expo-local-authentication, was easier than expected
+- Unit tests on validateTransfer caught edge cases early
+
+### What I'd do differently
+
+- Maybe group utils closer to the features that use them instead of flat folder
+- Spent too much time on UI polish, should've done E2E testing instead
+
+### If I had more time
+
+- E2E tests with Detox or Maestro
+- Proper HTTP status codes for real API
+- Offline queue with background sync
+- Transfer templates / scheduled transfers
+- Favourite recipients
+- PDF receipts
+
 ## Known Limitations
 
 - No real API integration - mock only
@@ -277,13 +322,13 @@ See [TESTCASES.md](./TESTCASES.md) for complete testing guide.
 ## Troubleshooting
 
 **iOS Simulator biometrics:**
-Go to Features > Face ID > Enrolled, then Features > Face ID > Matching Face when prompted.
+Features > Face ID > Enrolled, then Features > Face ID > Matching Face when prompted.
 
 **Android Emulator fingerprint:**
-Use Extended Controls > Fingerprint > Touch Sensor.
+Extended Controls > Fingerprint > Touch Sensor.
 
 **Pod install fails:**
-Delete `ios/Pods` and `ios/Podfile.lock`, then run `pod install` again.
+Delete `ios/Pods` and `ios/Podfile.lock`, run `pod install` again.
 
 ## Scripts Reference
 

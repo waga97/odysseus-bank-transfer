@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Account Store
- * Manages user account data, recipients, and transactions
- */
-
 import { create } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import type {
@@ -205,9 +200,6 @@ export const useAccountStore = create<AccountState>((set) => ({
   setBalanceHidden: (hidden) => set({ isBalanceHidden: hidden }),
 }));
 
-/**
- * Selector hooks for optimized re-renders
- */
 export const useDefaultAccount = () =>
   useAccountStore((state) => state.defaultAccount);
 export const useAccounts = () => useAccountStore((state) => state.accounts);
@@ -215,11 +207,7 @@ export const useBalance = () =>
   useAccountStore((state) => state.defaultAccount?.balance ?? 0);
 export const useRecipients = () => useAccountStore((state) => state.recipients);
 
-/**
- * Computed selector: Returns recent transfer recipients derived from transaction history
- * This is the single source of truth - no need to manually sync lastTransferDate
- * Returns unique recipients sorted by most recent transaction, limited to 10
- */
+// Derived from transaction history - no need to manually sync lastTransferDate
 export const useRecentRecipients = () =>
   useAccountStore((state) => {
     const seen = new Set<string>();
@@ -268,9 +256,6 @@ export const useBalanceVisibility = () =>
     }))
   );
 
-/**
- * Optimized selector for multiple actions - uses shallow comparison
- */
 export const useAccountActions = () =>
   useAccountStore(
     useShallow((state) => ({

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Balance Card
- * Large balance display with hide/show toggle
- */
-
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Icon } from '@components/ui';

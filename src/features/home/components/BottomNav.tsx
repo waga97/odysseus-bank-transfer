@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Bottom Navigation
- * Modern minimal bottom tab bar
- */
-
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Color Palette
- * Warm cream/orange theme inspired by modern fintech apps
- */
-
 export const palette = {
   // Brand colors
   primary: {

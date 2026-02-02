@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Border Radius System
- * Consistent rounded corners as per mockup design
- */
-
 export const borderRadius = {
   none: 0,
   xs: 4,

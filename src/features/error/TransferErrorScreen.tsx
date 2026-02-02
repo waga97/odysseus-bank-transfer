@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Transfer Error Screen
- * Handles various transfer error states with appropriate messaging
- */
-
 import React, { useMemo, useEffect } from 'react';
 import { View, StyleSheet, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -119,7 +114,7 @@ const ERROR_CONFIGS: Record<string, ErrorConfig> = {
 };
 
 export function TransferErrorScreen({ navigation, route }: Props) {
-  const { errorType, errorMessage } = route.params;
+  const { errorType, errorMessage, transferContext } = route.params;
   const insets = useSafeAreaInsets();
 
   // Trigger error haptic on mount
@@ -132,40 +127,99 @@ export function TransferErrorScreen({ navigation, route }: Props) {
     return ERROR_CONFIGS[errorType] ?? ERROR_CONFIGS.generic!;
   }, [errorType]);
 
+  // We use reset() instead of goBack() because ProcessingScreen used replace() to get here,
+  // so the nav stack is broken. Reset rebuilds a clean stack for proper back navigation.
+  const navigateToAmountEntry = () => {
+    if (transferContext?.recipient) {
+      navigation.reset({
+        index: 2,
+        routes: [
+          { name: 'Home' },
+          { name: 'TransferHub' },
+          {
+            name: 'AmountEntry',
+            params: { recipient: transferContext.recipient },
+          },
+        ],
+      });
+    } else {
+      navigation.reset({
+        index: 1,
+        routes: [{ name: 'Home' }, { name: 'TransferHub' }],
+      });
+    }
+  };
+
+  const navigateToReview = () => {
+    if (transferContext?.recipient && transferContext.amount) {
+      navigation.reset({
+        index: 3,
+        routes: [
+          { name: 'Home' },
+          { name: 'TransferHub' },
+          {
+            name: 'AmountEntry',
+            params: { recipient: transferContext.recipient },
+          },
+          {
+            name: 'TransferReview',
+            params: {
+              recipient: transferContext.recipient,
+              amount: transferContext.amount,
+              note: transferContext.note,
+            },
+          },
+        ],
+      });
+    } else {
+      navigation.reset({
+        index: 1,
+        routes: [{ name: 'Home' }, { name: 'TransferHub' }],
+      });
+    }
+  };
+
+  const navigateToTransferHub = () => {
+    navigation.reset({
+      index: 1,
+      routes: [{ name: 'Home' }, { name: 'TransferHub' }],
+    });
+  };
+
   const handlePrimaryAction = () => {
     switch (errorType) {
       case 'insufficient_funds':
       case 'per_transaction_limit':
       case 'invalid_amount':
-        // Go back to amount entry (pop: Error -> Processing -> Review -> Amount)
-        navigation.pop(3);
+        // Amount-related error - let user try different amount
+        navigateToAmountEntry();
         break;
       case 'network_error':
       case 'generic':
-        // Try again - go back to review screen
-        navigation.goBack();
+        // Transient error - let user retry the same transfer
+        navigateToReview();
         break;
       case 'daily_limit':
       case 'monthly_limit':
-        // Show limit increase modal (for demo, go to settings)
+        // Limit reached - go to settings to view/request increase
         navigation.reset({
           index: 1,
           routes: [{ name: 'Home' }, { name: 'Settings' }],
         });
         break;
       case 'recipient_not_found':
-        // Go back to recipient details
-        navigation.pop(4);
+        // Recipient error - let user select different recipient
+        navigateToTransferHub();
         break;
       case 'duplicate_transfer':
-        // Go to transfer history
+        // Duplicate - show history so user can verify
         navigation.reset({
           index: 1,
           routes: [{ name: 'Home' }, { name: 'TransferHistory' }],
         });
         break;
       default:
-        navigation.goBack();
+        navigateToTransferHub();
     }
   };
 
@@ -179,6 +233,7 @@ export function TransferErrorScreen({ navigation, route }: Props) {
         });
         break;
       case 'daily_limit':
+      case 'monthly_limit':
         // Set reminder (for demo, go home)
         navigation.reset({
           index: 0,
@@ -186,11 +241,14 @@ export function TransferErrorScreen({ navigation, route }: Props) {
         });
         break;
       case 'duplicate_transfer':
-        // Continue anyway - would need transfer data, go back for now
-        navigation.goBack();
+        // Continue anyway - retry the transfer
+        navigateToReview();
         break;
       default:
-        navigation.goBack();
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
     }
   };
 

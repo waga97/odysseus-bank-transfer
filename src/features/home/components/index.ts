@@ -1,7 +1,3 @@
-/**
- * Ryt Bank - Home Components Export
- */
-
 export { Header } from './Header';
 export { BalanceCard } from './BalanceCard';
 export { QuickActions } from './QuickActions';

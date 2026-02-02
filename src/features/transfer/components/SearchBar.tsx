@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Search Bar
- * Search input for recipients - uses standardized Input component
- */
-
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Input, Icon } from '@components/ui';

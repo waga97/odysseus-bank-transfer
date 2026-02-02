@@ -1,0 +1,14 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background for adaptive icon -->
+  <rect width="1024" height="1024" fill="transparent"/>
+
+  <!-- Globe icon centered with padding for safe zone -->
+  <g transform="translate(312, 312) scale(16.67)">
+    <!-- Circle -->
+    <circle cx="12" cy="12" r="10" fill="none" stroke="#f5a623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Horizontal line -->
+    <line x1="2" y1="12" x2="22" y2="12" stroke="#f5a623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Ellipse (globe curve) -->
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="#f5a623" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Retry Utility
- * Exponential backoff for transient network failures
- */
-
 export interface RetryOptions {
   maxAttempts?: number;
   baseDelayMs?: number;

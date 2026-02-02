@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Divider Component
- * Horizontal or vertical separator line
- */
-
 import React from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { colors } from '@theme/colors';

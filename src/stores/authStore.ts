@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Auth Store
- * Manages user authentication state and biometric preferences
- */
-
 import { create } from 'zustand';
 import type { User, BiometricStatus, BiometricType } from '@types';
 
@@ -63,9 +58,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     }),
 }));
 
-/**
- * Selector hooks for optimized re-renders
- */
 export const useUser = () => useAuthStore((state) => state.user);
 export const useIsAuthenticated = () =>
   useAuthStore((state) => state.isAuthenticated);

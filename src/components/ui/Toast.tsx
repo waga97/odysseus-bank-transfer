@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Toast Component
- * Animated toast notification for success/error messages
- */
-
 import React, { useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, Animated, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

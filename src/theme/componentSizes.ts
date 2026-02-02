@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Component Size Constants
- * Centralized dimensions for UI consistency
- */
-
 export const componentSizes = {
   // Header elements
   header: {

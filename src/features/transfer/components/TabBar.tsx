@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Tab Bar
- * Horizontal tabs for transfer methods - warm theme
- */
-
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text } from '@components/ui';

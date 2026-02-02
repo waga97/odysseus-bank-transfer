@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Haptic Feedback Utilities
- * Provides consistent haptic feedback across the app
- */
-
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 

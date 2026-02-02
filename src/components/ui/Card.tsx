@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Card Component
- * Container component with elevation and variants
- */
-
 import React from 'react';
 import {
   View,

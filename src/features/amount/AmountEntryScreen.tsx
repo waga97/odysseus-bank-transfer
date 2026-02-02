@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Amount Entry Screen
- * Enter transfer amount with numpad
- */
-
 import React, { useCallback, useState, useMemo } from 'react';
 import { View, StyleSheet, Pressable, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,10 +18,7 @@ import { useAccountStore } from '@stores/accountStore';
 import { useTransferStore } from '@stores/transferStore';
 import { formatInputDisplay } from '@utils/currency';
 import { lightHaptic } from '@utils/haptics';
-import {
-  validateTransfer,
-  getFirstErrorMessage,
-} from '@utils/validateTransfer';
+import { validateTransfer } from '@utils/validateTransfer';
 
 type Props = RootStackScreenProps<'AmountEntry'>;
 
@@ -55,23 +47,30 @@ export function AmountEntryScreen({ navigation, route }: Props) {
     return isNaN(parsed) ? 0 : parsed;
   }, [amount]);
 
-  // Validation - uses shared validation function (DRY)
   const validation = useMemo(() => {
-    if (!limits || numericAmount <= 0) {
-      return { valid: false, message: null };
+    if (!limits) {
+      return { valid: false };
     }
 
+    // Empty input or typing decimal
+    if (amount === '' || amount.endsWith('.')) {
+      return { valid: false };
+    }
+
+    // Zero amount
+    if (numericAmount === 0) {
+      return { valid: false };
+    }
+
+    // Validate against limits using shared validation function (DRY)
     const result = validateTransfer({
       amount: numericAmount,
       balance: defaultAccount?.balance ?? 0,
       limits,
     });
 
-    return {
-      valid: result.isValid,
-      message: getFirstErrorMessage(result),
-    };
-  }, [numericAmount, defaultAccount, limits]);
+    return { valid: result.isValid };
+  }, [amount, numericAmount, defaultAccount, limits]);
 
   // Handle numpad press
   const handleNumpadPress = useCallback(
@@ -175,7 +174,7 @@ export function AmountEntryScreen({ navigation, route }: Props) {
           <Text style={styles.amountText}>{displayAmount}</Text>
         </View>
 
-        {/* Limit Warnings */}
+        {/* Limit Warnings - handles all visual feedback for limits */}
         {numericAmount > 0 && limits && (
           <View style={styles.limitWarnings}>
             <TransferLimitWarnings
@@ -189,12 +188,6 @@ export function AmountEntryScreen({ navigation, route }: Props) {
               perTransactionLimit={limits.perTransaction}
             />
           </View>
-        )}
-
-        {validation.message && (
-          <Text variant="bodySmall" color={colors.status.error} align="center">
-            {validation.message}
-          </Text>
         )}
 
         {/* Quick Amounts */}

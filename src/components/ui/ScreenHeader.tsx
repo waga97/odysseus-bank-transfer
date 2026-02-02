@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Screen Header Component
- * Reusable header with back button and centered title
- */
-
 import React from 'react';
 import type { ViewStyle } from 'react-native';
 import { View, StyleSheet, Pressable } from 'react-native';

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Transfer Success Screen
- * Shows successful transfer confirmation with receipt
- */
-
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View,

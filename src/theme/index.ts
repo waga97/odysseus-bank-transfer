@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Theme System
- * Centralized design tokens and theme configuration
- */
-
 import { palette, colors, type Colors } from './colors';
 import {
   fontFamily,

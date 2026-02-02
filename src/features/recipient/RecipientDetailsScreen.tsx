@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Recipient Details Screen
- * Enter account number for new recipient
- */
-
 import React, { useCallback, useState, useRef } from 'react';
 import type { TextInput } from 'react-native';
 import {

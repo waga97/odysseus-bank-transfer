@@ -1,9 +1,3 @@
-/**
- * Ryt Bank - Transfer Limit Warning
- * Displays warning when transfer amount approaches or exceeds limits
- * Uses shared threshold from validateTransfer for consistency
- */
-
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from './Text';
@@ -48,9 +42,6 @@ function getLimitLabel(type: LimitWarningProps['type']): string {
   }
 }
 
-/**
- * Determine warning level using shared validation logic
- */
 function getWarningLevel(
   amount: number,
   limit: number,
@@ -158,9 +149,6 @@ export function LimitWarning({
   );
 }
 
-/**
- * Component to show all applicable limit warnings for a transfer amount
- */
 interface TransferLimitWarningsProps {
   amount: number;
   dailyLimit: number;

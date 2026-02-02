@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Typography System
- * Using Manrope font family as per mockup design
- */
-
 import type { TextStyle } from 'react-native';
 import { Platform } from 'react-native';
 

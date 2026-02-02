@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Contact Picker Screen
- * Select contacts for DuitNow transfer with phone number - warm theme
- */
-
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,

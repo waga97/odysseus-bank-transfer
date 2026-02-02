@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - API Client
- * Centralized HTTP client configuration
- */
-
 const API_BASE_URL = 'https://api.odysseusbank.com';
 
 interface RequestConfig extends RequestInit {

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Recent Activity
- * List of recent transactions with warm theme
- */
-
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Text, Icon, Avatar, Skeleton } from '@components/ui';

@@ -240,19 +240,31 @@ Note: Monthly limit is also enforced at the API level, so even if UI validation 
 
 You can adjust these values in `src/config/app.ts` to make testing easier:
 
-| Setting                            | Default  | What it affects                       |
-| ---------------------------------- | -------- | ------------------------------------- |
-| `mockBalances.current`             | 73566.75 | Account balance shown                 |
-| `transferLimits.daily.used`        | 2000     | How much of daily limit is "used"     |
-| `transferLimits.monthly.used`      | 15000    | How much of monthly limit is "used"   |
-| `transferLimits.perTransaction`    | 6000     | Max single transfer amount            |
-| `loadingDelay`                     | 800      | API response delay in ms              |
-| `features.enableBiometrics`        | true     | Whether biometrics feature is enabled |
-| `mockApi.networkFailureRate`       | 0.05     | Network error probability (0-1)       |
-| `mockApi.transferDelay`            | 1500     | Transfer processing delay in ms       |
-| `validation.limitWarningThreshold` | 0.8      | Warn at this % of limit (0-1)         |
+| Setting                            | Default | What it affects                       |
+| ---------------------------------- | ------- | ------------------------------------- |
+| `mockBalances.current`             | 10000   | Account balance shown                 |
+| `transferLimits.daily.used`        | 0       | How much of daily limit is "used"     |
+| `transferLimits.monthly.used`      | 0       | How much of monthly limit is "used"   |
+| `transferLimits.perTransaction`    | 5000    | Max single transfer amount            |
+| `loadingDelay`                     | 800     | API response delay in ms              |
+| `features.enableBiometrics`        | true    | Whether biometrics feature is enabled |
+| `mockApi.networkFailureRate`       | 0.1     | Network error probability (0-1)       |
+| `mockApi.transferDelay`            | 1500    | Transfer processing delay in ms       |
+| `validation.limitWarningThreshold` | 0.8     | Warn at this % of limit (0-1)         |
 
 Changes to config take effect on app reload - no rebuild needed.
+
+**Quick tests:**
+
+| Amount       | Result                      |
+| ------------ | --------------------------- |
+| RM 1,000     | ✅ works                    |
+| RM 5,000     | ✅ works (exactly at limit) |
+| RM 5,001     | ❌ per-txn limit            |
+| RM 5,000 × 2 | ❌ second one hits daily    |
+| RM 10,001    | ❌ not enough balance       |
+
+Config changes work on reload, no rebuild.
 
 ---
 
@@ -265,4 +277,4 @@ Changes to config take effect on app reload - no rebuild needed.
 
 ---
 
-Last updated: Feb 1, 2026
+Last updated: Feb 2, 2026

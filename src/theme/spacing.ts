@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Spacing System
- * Consistent spacing scale based on 4px base unit
- */
-
 // Base unit for spacing calculations
 const BASE_UNIT = 4;
 

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Account Cards
- * Horizontal scrollable account cards
- */
-
 import React from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Text, Icon } from '@components/ui';

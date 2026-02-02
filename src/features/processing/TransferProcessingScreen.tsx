@@ -1,9 +1,3 @@
-/**
- * Ryt Bank - Transfer Processing Screen
- * Shows transfer in progress with animated loading state
- * Actually calls transferApi and updates account state
- */
-
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Animated, Easing, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,9 +23,6 @@ const PROCESSING_STEPS = [
   { id: 4, text: 'Confirming with recipient bank...', duration: 400 },
 ];
 
-/**
- * Map API error codes to error screen types
- */
 function mapErrorToType(
   error: Error
 ):
@@ -228,12 +219,18 @@ export function TransferProcessingScreen({ navigation, route }: Props) {
           return;
         }
 
-        // Error - navigate to error screen
+        // Error - navigate to error screen with transfer context for recovery
         const errorType = mapErrorToType(error as Error);
 
         navigation.replace('TransferError', {
           errorType,
-          // Don't pass raw error codes - let error screen use friendly copy
+          // Pass transfer context so error screen can navigate back properly
+          // This avoids fragile pop(N) calls that break with replace() navigation
+          transferContext: {
+            recipient,
+            amount,
+            note,
+          },
         });
       }
     };

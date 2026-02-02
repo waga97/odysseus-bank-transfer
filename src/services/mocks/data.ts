@@ -1,9 +1,3 @@
-/**
- * Ryt Bank - Mock Data
- * Realistic test data for development and testing
- * NOTE: User name and balances are controlled from @config/app.ts
- */
-
 import type {
   User,
   Account,

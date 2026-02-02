@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Text Component
- * Typography component with pre-defined variants
- */
-
 import React from 'react';
 import {
   Text as RNText,

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Recipient List
- * List of recent recipients - warm theme
- */
-
 import React, { memo, useCallback, useMemo } from 'react';
 import {
   View,

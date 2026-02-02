@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Transfer Review Screen
- * Review and confirm transfer details before biometric auth
- */
-
 import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

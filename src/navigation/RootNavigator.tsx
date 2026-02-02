@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Root Navigator
- * Main navigation structure for the app
- */
-
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './types';

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Mock API
- * Simple fetch mock for React Native (no MSW dependency)
- */
-
 import {
   mockUser,
   mockAccounts,
@@ -27,10 +22,6 @@ const transactions = [...mockTransactions];
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const apiDelay = () => delay(appConfig.loadingDelay);
 
-/**
- * Build current transfer limits state - single source of truth
- * Used by both validateTransfer and executeTransfer
- */
 const buildCurrentLimits = () => ({
   daily: {
     limit: mockTransferLimits.daily.limit,
@@ -45,9 +36,6 @@ const buildCurrentLimits = () => ({
   perTransaction: mockTransferLimits.perTransaction,
 });
 
-/**
- * Mock API functions
- */
 export const mockApi = {
   // User
   async getUser() {

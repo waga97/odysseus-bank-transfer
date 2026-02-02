@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Shake Animation Hook
- * Reusable shake effect for error feedback
- */
-
 import { useCallback, useRef } from 'react';
 import { Animated } from 'react-native';
 

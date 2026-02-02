@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Share Utilities
- * Handles sharing receipts and other content
- */
-
 import * as Sharing from 'expo-sharing';
 import { captureRef } from 'react-native-view-shot';
 import type { RefObject } from 'react';

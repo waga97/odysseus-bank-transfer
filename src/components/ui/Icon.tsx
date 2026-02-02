@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Icon Component
- * Using Feather icons from @expo/vector-icons
- */
-
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React from 'react';
 import { Feather } from '@expo/vector-icons';

@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - Bank Selection Screen
- * Choose a bank for new recipient transfer
- */
-
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,

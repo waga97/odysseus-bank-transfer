@@ -1,8 +1,3 @@
-/**
- * Ryt Bank - App Configuration
- * Centralized configuration for app-wide settings
- */
-
 export const appConfig = {
   /**
    * Simulated loading delay in milliseconds
@@ -21,28 +16,32 @@ export const appConfig = {
   },
 
   /**
-   * Mock account balances
+   * Mock account balances - round numbers for easy testing
    */
   mockBalances: {
-    savings: 10000.0,
-    current: 73566.75,
-    investment: 25000.0,
+    current: 10000,
+    savings: 5000,
+    investment: 15000,
   },
 
   /**
-   * Transfer limits - these control actual transfer validation
-   * Reflected in Settings page and enforced during transfers
+   * Transfer limits - round numbers for easy testing
+   *
+   * Test scenarios:
+   * - Transfer 5001 → fails (per-transaction limit)
+   * - Transfer 5000 x2 → second fails (daily limit: 10000)
+   * - Transfer 10001 → fails (balance + daily limit)
    */
   transferLimits: {
     daily: {
-      limit: 10000, // Maximum daily transfer amount
-      used: 2000, // Amount already used today
+      limit: 10000,
+      used: 0,
     },
     monthly: {
-      limit: 20000, // Maximum monthly transfer amount
-      used: 15000, // Amount already used this month
+      limit: 50000,
+      used: 0,
     },
-    perTransaction: 6000, // Maximum single transfer amount
+    perTransaction: 5000,
   },
 
   /**
@@ -60,7 +59,6 @@ export const appConfig = {
     /**
      * Simulated network failure rate (0.0 to 1.0)
      * Set to 0 for no failures, 1.0 for 100% failure rate
-     * Default: 0.05 (5% chance of network error)
      */
     networkFailureRate: 0.1,
 
